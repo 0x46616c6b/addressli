@@ -1,7 +1,7 @@
 import React from "react";
 import type { ProcessedAddress } from "../types";
-import { createProcessingSummary, downloadJSON, generateExportFilename } from "../utils/jsonExport";
 import { downloadFailedAddressesCSV } from "../utils/csvParser";
+import { createProcessingSummary, downloadJSON, generateExportFilename } from "../utils/jsonExport";
 
 interface ResultsProps {
   processedAddresses: ProcessedAddress[];
@@ -13,17 +13,15 @@ interface ResultsProps {
 export function Results({ processedAddresses, originalFilename, geoJsonData, onStartOver }: ResultsProps): React.JSX.Element {
   const summary = createProcessingSummary(processedAddresses);
   const filename = generateExportFilename(originalFilename);
+  const failedAddresses = processedAddresses.filter((addr) => !addr.geocodeResult || addr.error);
 
   const handleDownload = () => {
     downloadJSON(geoJsonData, filename);
   };
 
   const handleDownloadFailedCSV = () => {
-    const failedAddresses = processedAddresses.filter((addr) => !addr.geocodeResult || addr.error);
     downloadFailedAddressesCSV(failedAddresses, originalFilename);
   };
-
-  const failedAddresses = processedAddresses.filter((addr) => !addr.geocodeResult || addr.error);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">

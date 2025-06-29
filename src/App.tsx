@@ -174,12 +174,12 @@ function App(): React.JSX.Element {
 
             <div className="space-y-8">
               {/* Data Preview Section */}
-              <section className="space-y-4">
+              <section className="space-y-4" aria-labelledby="data-preview-heading">
                 <DataPreview data={state.csvData} headers={state.headers} />
               </section>
 
               {/* Column Mapping Section */}
-              <section className="space-y-4">
+              <section className="space-y-4" aria-labelledby="address-columns-heading">
                 <ColumnSelector headers={state.headers} onMappingChange={handleMappingChange} initialMapping={state.columnMapping} />
               </section>
 

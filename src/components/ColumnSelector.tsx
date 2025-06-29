@@ -39,7 +39,9 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
   return (
     <div className="w-full space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-3">Address Columns</h3>
+        <h3 id="address-columns-heading" className="text-lg font-medium text-gray-900 mb-3">
+          Address Columns
+        </h3>
         <p className="text-sm text-gray-600 mb-6">Select the columns that contain your address data. At least one column must be selected.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

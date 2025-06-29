@@ -16,7 +16,9 @@ export function DataPreview({ data, headers, maxRows = 5 }: DataPreviewProps): R
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Data Preview</h3>
+      <h3 id="data-preview-heading" className="text-lg font-medium text-gray-900 mb-4">
+        Data Preview
+      </h3>
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">

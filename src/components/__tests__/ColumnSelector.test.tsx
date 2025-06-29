@@ -21,9 +21,10 @@ describe("ColumnSelector Component", () => {
       expect(mainHeading).toHaveAttribute("id", "address-columns-heading");
       expect(mainHeading.tagName).toBe("H3");
 
-      // Check sub-heading hierarchy
+      // Check sub-heading hierarchy and ID
       const subHeading = screen.getByRole("heading", { name: "Additional Data" });
       expect(subHeading.tagName).toBe("H4");
+      expect(subHeading).toHaveAttribute("id", "additional-data-heading");
     });
 
     it("should have accessible form labels", () => {

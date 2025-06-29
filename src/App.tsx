@@ -5,8 +5,8 @@ import { FileUpload } from "./components/FileUpload";
 import { ProcessingProgressComponent } from "./components/ProcessingProgress";
 import { Results } from "./components/Results";
 import type { CSVRow, ColumnMapping, LeafletFeatureCollection, ProcessedAddress, ProcessingProgress } from "./types";
+import { calculateProgress, isProcessedAddressSuccessful, processAddressRow } from "./utils/addressProcessing";
 import { autoDetectColumns, parseCSVFile, validateColumnSelection } from "./utils/csvParser";
-import { buildAddressString, geocodeAddressWithRateLimit } from "./utils/geocoding";
 import { convertToGeoJSON } from "./utils/jsonExport";
 
 type AppStep = "upload" | "preview" | "processing" | "results";
@@ -111,51 +111,32 @@ function App(): React.JSX.Element {
     }));
 
     const processedAddresses: ProcessedAddress[] = [];
+    let successfulCount = 0;
+    let failedCount = 0;
 
     for (let i = 0; i < state.csvData.length; i++) {
       const row = state.csvData[i];
 
-      // Build address string from selected columns
-      const addressString = buildAddressString(
-        state.columnMapping.street ? row[state.columnMapping.street] : undefined,
-        state.columnMapping.zipCode ? row[state.columnMapping.zipCode] : undefined,
-        state.columnMapping.city ? row[state.columnMapping.city] : undefined
-      );
-
-      const processedAddress: ProcessedAddress = {
-        originalData: row,
-      };
-
-      if (addressString.trim()) {
-        try {
-          const geocodeResult = await geocodeAddressWithRateLimit(addressString);
-
-          if (geocodeResult) {
-            processedAddress.geocodeResult = geocodeResult;
-            processedAddress.coordinates = [geocodeResult.lat, geocodeResult.lon];
-          } else {
-            processedAddress.error = "Address could not be found";
-          }
-        } catch (error) {
-          processedAddress.error = error instanceof Error ? error.message : "Geocoding error";
-        }
-      } else {
-        processedAddress.error = "Empty address";
-      }
-
+      // Process the address row
+      const processedAddress = await processAddressRow(row, state.columnMapping);
       processedAddresses.push(processedAddress);
 
-      // Update progress
-      setState((prev) => ({
-        ...prev,
-        progress: {
-          total: state.csvData.length,
-          processed: i + 1,
-          successful: processedAddresses.filter((addr) => addr.geocodeResult && !addr.error).length,
-          failed: processedAddresses.filter((addr) => !addr.geocodeResult || addr.error).length,
-        },
-        processedAddresses: [...processedAddresses],
-      }));
+      // Update incremental counters
+      if (isProcessedAddressSuccessful(processedAddress)) {
+        successfulCount++;
+      } else {
+        failedCount++;
+      }
+
+      // Update progress in batches to reduce re-renders
+      if ((i + 1) % 10 === 0 || i === state.csvData.length - 1) {
+        const progress = calculateProgress(state.csvData.length, i + 1, successfulCount, failedCount);
+        setState((prev) => ({
+          ...prev,
+          progress,
+          processedAddresses: [...processedAddresses],
+        }));
+      }
     }
 
     // Generate GeoJSON

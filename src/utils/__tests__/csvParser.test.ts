@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CSVRow, ProcessedAddress } from "../../types";
-import { autoDetectColumns, getCSVPreview, isValidCSVFile, validateColumnSelection, downloadFailedAddressesCSV } from "../csvParser";
+import { autoDetectColumns, downloadFailedAddressesCSV, getCSVPreview, isValidCSVFile, validateColumnSelection } from "../csvParser";
 
 describe("csvParser utilities", () => {
   describe("isValidCSVFile", () => {
@@ -263,40 +263,40 @@ describe("csvParser utilities", () => {
       };
 
       mockCreateElement.mockReturnValue(mockAnchorElement);
-      
+
       // Mock document methods
-      Object.defineProperty(document, 'createElement', {
+      Object.defineProperty(document, "createElement", {
         value: mockCreateElement,
-        writable: true
+        writable: true,
       });
-      Object.defineProperty(document.body, 'appendChild', {
+      Object.defineProperty(document.body, "appendChild", {
         value: mockAppendChild,
-        writable: true
+        writable: true,
       });
-      Object.defineProperty(document.body, 'removeChild', {
+      Object.defineProperty(document.body, "removeChild", {
         value: mockRemoveChild,
-        writable: true
+        writable: true,
       });
 
       // Mock URL APIs
       mockCreateObjectURL = vi.fn().mockReturnValue("blob:mock-url");
       mockRevokeObjectURL = vi.fn();
-      
-      Object.defineProperty(global, 'URL', {
+
+      Object.defineProperty(global, "URL", {
         value: {
           createObjectURL: mockCreateObjectURL,
           revokeObjectURL: mockRevokeObjectURL,
         },
-        writable: true
+        writable: true,
       });
 
       // Mock Blob constructor
       mockBlob = vi.fn().mockImplementation((content: BlobPart[], options?: BlobPropertyBag) => ({
         content,
         options,
-        type: options?.type || 'text/plain',
+        type: options?.type || "text/plain",
       }));
-      
+
       global.Blob = mockBlob;
     });
 
@@ -306,7 +306,7 @@ describe("csvParser utilities", () => {
 
     it("should handle empty failed addresses array gracefully", () => {
       downloadFailedAddressesCSV([], "test.csv");
-      
+
       // Should not create any DOM elements or blobs when array is empty
       expect(mockCreateElement).not.toHaveBeenCalled();
       expect(mockCreateObjectURL).not.toHaveBeenCalled();
@@ -328,14 +328,11 @@ describe("csvParser utilities", () => {
       downloadFailedAddressesCSV(failedAddresses, "addresses.csv");
 
       // Verify Blob was created with correct CSV content
-      expect(mockBlob).toHaveBeenCalledWith(
-        [expect.stringContaining("street,city,plz,error_message")],
-        { type: "text/csv;charset=utf-8;" }
-      );
+      expect(mockBlob).toHaveBeenCalledWith([expect.stringContaining("city,error_message,plz,street")], { type: "text/csv;charset=utf-8;" });
 
       const blobCall = mockBlob.mock.calls[0];
       const csvContent = blobCall[0][0] as string;
-      
+
       // Verify CSV content includes original data and error messages
       expect(csvContent).toContain("Musterstraße 123");
       expect(csvContent).toContain("Address not found");
@@ -359,7 +356,7 @@ describe("csvParser utilities", () => {
 
       expect(mockBlob).toHaveBeenCalled();
       const csvContent = mockBlob.mock.calls[0][0][0] as string;
-      
+
       // Should include all unique columns from both addresses
       expect(csvContent).toContain("name");
       expect(csvContent).toContain("address");
@@ -399,8 +396,8 @@ describe("csvParser utilities", () => {
 
       // Mock Date.prototype.toISOString to return predictable timestamp
       const mockDate = new Date("2023-06-15T10:30:45.123Z");
-      vi.spyOn(global, 'Date').mockImplementation(() => mockDate);
-      vi.spyOn(mockDate, 'toISOString').mockReturnValue("2023-06-15T10:30:45.123Z");
+      vi.spyOn(global, "Date").mockImplementation(() => mockDate);
+      vi.spyOn(mockDate, "toISOString").mockReturnValue("2023-06-15T10:30:45.123Z");
 
       downloadFailedAddressesCSV(failedAddresses, "my_addresses.csv");
 
@@ -419,8 +416,8 @@ describe("csvParser utilities", () => {
       ];
 
       const mockDate = new Date("2023-06-15T10:30:45.123Z");
-      vi.spyOn(global, 'Date').mockImplementation(() => mockDate);
-      vi.spyOn(mockDate, 'toISOString').mockReturnValue("2023-06-15T10:30:45.123Z");
+      vi.spyOn(global, "Date").mockImplementation(() => mockDate);
+      vi.spyOn(mockDate, "toISOString").mockReturnValue("2023-06-15T10:30:45.123Z");
 
       downloadFailedAddressesCSV(failedAddresses, "filename_no_extension");
 
@@ -441,11 +438,11 @@ describe("csvParser utilities", () => {
       // Verify DOM operations
       expect(mockCreateElement).toHaveBeenCalledWith("a");
       expect(mockCreateObjectURL).toHaveBeenCalled();
-      
+
       const anchorElement = mockCreateElement.mock.results[0].value;
       expect(anchorElement.href).toBe("blob:mock-url");
       expect(anchorElement.style.display).toBe("none");
-      
+
       expect(mockAppendChild).toHaveBeenCalledWith(anchorElement);
       expect(mockClick).toHaveBeenCalled();
       expect(mockRemoveChild).toHaveBeenCalledWith(anchorElement);
@@ -473,7 +470,7 @@ describe("csvParser utilities", () => {
       downloadFailedAddressesCSV(failedAddresses, "complex_data.csv");
 
       const csvContent = mockBlob.mock.calls[0][0][0] as string;
-      
+
       // Verify all original fields are preserved
       expect(csvContent).toContain("id");
       expect(csvContent).toContain("company");
@@ -485,7 +482,7 @@ describe("csvParser utilities", () => {
       expect(csvContent).toContain("email");
       expect(csvContent).toContain("notes");
       expect(csvContent).toContain("error_message");
-      
+
       // Verify data values are included
       expect(csvContent).toContain("123");
       expect(csvContent).toContain("Test Company");
@@ -498,6 +495,41 @@ describe("csvParser utilities", () => {
     it("should function as a utility without throwing errors", () => {
       expect(typeof downloadFailedAddressesCSV).toBe("function");
       expect(downloadFailedAddressesCSV.length).toBe(2); // Should take 2 parameters
+    });
+
+    it("should sort columns alphabetically using localeCompare for reliable ordering", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: {
+            Ürsprung: "test", // German umlaut
+            zuletzt: "last",
+            Adresse: "middle",
+            ämlich: "special char",
+            Büro: "office",
+          },
+          error: "Test error",
+        },
+      ];
+
+      downloadFailedAddressesCSV(failedAddresses, "test.csv");
+
+      const csvContent = mockBlob.mock.calls[0][0][0] as string;
+      const lines = csvContent.split("\n");
+      const headerLine = lines[0];
+
+      // Should be alphabetically sorted with locale-aware comparison
+      // Let's verify the order is correct by checking individual columns
+      expect(headerLine).toContain("Adresse");
+      expect(headerLine).toContain("ämlich");
+      expect(headerLine).toContain("Büro");
+      expect(headerLine).toContain("Ürsprung");
+      expect(headerLine).toContain("zuletzt");
+      expect(headerLine).toContain("error_message");
+
+      // Verify the columns are in alphabetical order
+      const headers = headerLine.split(",");
+      const sortedHeaders = [...headers].sort((a, b) => a.localeCompare(b));
+      expect(headers).toEqual(sortedHeaders);
     });
   });
 });

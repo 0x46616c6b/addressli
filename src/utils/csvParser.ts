@@ -169,8 +169,9 @@ export function downloadFailedAddressesCSV(failedAddresses: ProcessedAddress[], 
     Object.keys(addr.originalData).forEach((key) => allColumns.add(key));
   });
 
-  // Add error column
-  const headers = [...Array.from(allColumns).sort(), "error_message"];
+  // Add error column to the set before sorting
+  allColumns.add("error_message");
+  const headers = Array.from(allColumns).sort((a, b) => a.localeCompare(b));
 
   // Prepare data with error messages
   const csvData = failedAddresses.map((addr) => {

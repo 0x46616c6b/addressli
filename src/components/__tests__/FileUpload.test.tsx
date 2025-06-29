@@ -8,9 +8,9 @@ describe("FileUpload Component", () => {
     const mockOnFileSelected = vi.fn();
     render(<FileUpload onFileSelected={mockOnFileSelected} />);
 
-    expect(screen.getByText("CSV-Datei hochladen")).toBeInTheDocument();
-    expect(screen.getByText("Ziehen Sie eine CSV-Datei hierher oder klicken Sie zum Auswählen")).toBeInTheDocument();
-    expect(screen.getByText("Unterstützte Formate: .csv, .txt (max. 10MB)")).toBeInTheDocument();
+    expect(screen.getByText("Upload CSV file")).toBeInTheDocument();
+    expect(screen.getByText("Drag a CSV file here or click to select")).toBeInTheDocument();
+    expect(screen.getByText("Supported formats: .csv, .txt (max. 10MB)")).toBeInTheDocument();
   });
 
   it("should show drag active state when dragging", async () => {
@@ -30,7 +30,7 @@ describe("FileUpload Component", () => {
     const mockOnFileSelected = vi.fn();
     render(<FileUpload onFileSelected={mockOnFileSelected} />);
 
-    const fileInput = screen.getByLabelText("CSV-Datei auswählen");
+    const fileInput = screen.getByLabelText("Select CSV file");
     expect(fileInput).toBeInTheDocument();
     expect(fileInput).toHaveAttribute("type", "file");
     expect(fileInput).toHaveAttribute("accept", ".csv,.txt");
@@ -40,19 +40,17 @@ describe("FileUpload Component", () => {
     const mockOnFileSelected = vi.fn();
     render(<FileUpload onFileSelected={mockOnFileSelected} isLoading={true} />);
 
-    const fileInput = screen.getByLabelText("CSV-Datei auswählen");
+    const fileInput = screen.getByLabelText("Select CSV file");
     expect(fileInput).toBeDisabled();
   });
-
   it("should show error message when provided", () => {
     const mockOnFileSelected = vi.fn();
-
     // Create a mock file that would trigger validation error
     const invalidFile = new File(["content"], "test.pdf", { type: "application/pdf" });
 
     render(<FileUpload onFileSelected={mockOnFileSelected} />);
 
-    const fileInput = screen.getByLabelText("CSV-Datei auswählen");
+    const fileInput = screen.getByLabelText("Select CSV file");
 
     // Simulate file selection - this would trigger validation in the real component
     userEvent.upload(fileInput, invalidFile);
@@ -66,7 +64,7 @@ describe("FileUpload Component", () => {
     render(<FileUpload onFileSelected={mockOnFileSelected} />);
 
     const validFile = new File(["name,street,city\nJohn,Main St,Berlin"], "test.csv", { type: "text/csv" });
-    const fileInput = screen.getByLabelText("CSV-Datei auswählen");
+    const fileInput = screen.getByLabelText("Select CSV file");
 
     await userEvent.upload(fileInput, validFile);
 

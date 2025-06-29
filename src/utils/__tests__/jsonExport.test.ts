@@ -42,7 +42,7 @@ describe("jsonExport utilities", () => {
 
     const failedAddress: ProcessedAddress = {
       originalData: { name: "Jane", street: "", city: "", email: "jane@example.com" },
-      error: "Leere Adresse",
+      error: "Empty address",
     };
 
     it("should convert successful addresses to GeoJSON format", () => {

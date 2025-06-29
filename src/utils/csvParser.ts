@@ -69,12 +69,12 @@ export function validateColumnSelection(headers: string[], zipCode?: string, str
   const errors: string[] = [];
 
   if (!headers.length) {
-    errors.push("Keine Spaltenüberschriften gefunden");
+    errors.push("No column headers found");
   }
 
   // At least one address component should be selected
   if (!zipCode && !street && !city) {
-    errors.push("Mindestens eine Adresskomponente (PLZ, Straße oder Ort) muss ausgewählt werden");
+    errors.push("At least one address component (ZIP, street, or city) must be selected");
   }
 
   // Check if selected columns exist in headers
@@ -82,7 +82,7 @@ export function validateColumnSelection(headers: string[], zipCode?: string, str
   const invalidColumns = selectedColumns.filter((col) => !headers.includes(col));
 
   if (invalidColumns.length > 0) {
-    errors.push(`Ungültige Spalten ausgewählt: ${invalidColumns.join(", ")}`);
+    errors.push(`Invalid columns selected: ${invalidColumns.join(", ")}`);
   }
 
   return {

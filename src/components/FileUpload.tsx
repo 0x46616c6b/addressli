@@ -19,13 +19,13 @@ export function FileUpload({ onFileSelected, isLoading = false }: FileUploadProp
       const file = files[0];
 
       if (!isValidCSVFile(file)) {
-        setError("Bitte wählen Sie eine gültige CSV-Datei aus (.csv oder .txt)");
+        setError("Please select a valid CSV file (.csv or .txt)");
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
         // 10MB limit
-        setError("Die Datei ist zu groß. Maximale Dateigröße: 10MB");
+        setError("The file is too large. Maximum file size: 10MB");
         return;
       }
 
@@ -93,7 +93,7 @@ export function FileUpload({ onFileSelected, isLoading = false }: FileUploadProp
           onChange={handleFileInput}
           disabled={isLoading}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-          aria-label="CSV-Datei auswählen"
+          aria-label="Select CSV file"
         />
 
         <div className="space-y-4">
@@ -109,9 +109,9 @@ export function FileUpload({ onFileSelected, isLoading = false }: FileUploadProp
           </div>
 
           <div>
-            <p className="text-lg font-medium text-gray-900 mb-2">{dragActive ? "Datei hier ablegen" : "CSV-Datei hochladen"}</p>
-            <p className="text-sm text-gray-500">Ziehen Sie eine CSV-Datei hierher oder klicken Sie zum Auswählen</p>
-            <p className="text-xs text-gray-400 mt-2">Unterstützte Formate: .csv, .txt (max. 10MB)</p>
+            <p className="text-lg font-medium text-gray-900 mb-2">{dragActive ? "Drop file here" : "Upload CSV file"}</p>
+            <p className="text-sm text-gray-500">Drag a CSV file here or click to select</p>
+            <p className="text-xs text-gray-400 mt-2">Supported formats: .csv, .txt (max. 10MB)</p>
           </div>
         </div>
       </div>

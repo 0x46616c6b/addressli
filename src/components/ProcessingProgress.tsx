@@ -14,9 +14,9 @@ export function ProcessingProgressComponent({ progress, isProcessing, onCancel }
   return (
     <div className="w-full max-w-2xl mx-auto space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-medium text-gray-900 mb-2">{isProcessing ? "Verarbeitung läuft..." : "Verarbeitung abgeschlossen"}</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">{isProcessing ? "Processing..." : "Processing completed"}</h3>
         <p className="text-sm text-gray-600">
-          {progress.processed} von {progress.total} Adressen verarbeitet
+          {progress.processed} of {progress.total} addresses processed
         </p>
       </div>
 
@@ -29,7 +29,7 @@ export function ProcessingProgressComponent({ progress, isProcessing, onCancel }
           aria-valuenow={percentage}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`Fortschritt: ${percentage.toFixed(1)}%`}
+          aria-label={`Progress: ${percentage.toFixed(1)}%`}
         />
       </div>
 
@@ -37,19 +37,19 @@ export function ProcessingProgressComponent({ progress, isProcessing, onCancel }
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
         <div className="bg-white p-3 border border-gray-200 rounded-lg">
           <div className="text-2xl font-bold text-gray-900">{progress.total}</div>
-          <div className="text-sm text-gray-500">Gesamt</div>
+          <div className="text-sm text-gray-500">Total</div>
         </div>
         <div className="bg-white p-3 border border-gray-200 rounded-lg">
           <div className="text-2xl font-bold text-blue-600">{progress.processed}</div>
-          <div className="text-sm text-gray-500">Verarbeitet</div>
+          <div className="text-sm text-gray-500">Processed</div>
         </div>
         <div className="bg-white p-3 border border-gray-200 rounded-lg">
           <div className="text-2xl font-bold text-green-600">{progress.successful}</div>
-          <div className="text-sm text-gray-500">Erfolgreich</div>
+          <div className="text-sm text-gray-500">Successful</div>
         </div>
         <div className="bg-white p-3 border border-gray-200 rounded-lg">
           <div className="text-2xl font-bold text-red-600">{progress.failed}</div>
-          <div className="text-sm text-gray-500">Fehlgeschlagen</div>
+          <div className="text-sm text-gray-500">Failed</div>
         </div>
       </div>
 
@@ -57,7 +57,7 @@ export function ProcessingProgressComponent({ progress, isProcessing, onCancel }
       {progress.processed > 0 && (
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">Erfolgsquote:</span>
+            <span className="text-sm font-medium text-gray-700">Success rate:</span>
             <span className={`text-sm font-bold ${successRate >= 80 ? "text-green-600" : successRate >= 60 ? "text-yellow-600" : "text-red-600"}`}>
               {successRate.toFixed(1)}%
             </span>
@@ -80,7 +80,7 @@ export function ProcessingProgressComponent({ progress, isProcessing, onCancel }
             onClick={onCancel}
             className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
           >
-            Verarbeitung abbrechen
+            Cancel processing
           </button>
         </div>
       )}
@@ -90,14 +90,14 @@ export function ProcessingProgressComponent({ progress, isProcessing, onCancel }
         {isProcessing && (
           <div className="flex items-center justify-center space-x-2 text-blue-600">
             <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full" />
-            <span className="text-sm">Geocoding läuft... Bitte haben Sie Geduld.</span>
+            <span className="text-sm">Geocoding in progress... Please be patient.</span>
           </div>
         )}
 
         {!isProcessing && progress.processed > 0 && (
           <div className="text-sm text-gray-600">
-            {progress.failed > 0 && <p className="text-yellow-600 mb-2">⚠️ {progress.failed} Adressen konnten nicht geocodiert werden.</p>}
-            <p>Die Verarbeitung ist abgeschlossen. Sie können die Ergebnisse jetzt herunterladen.</p>
+            {progress.failed > 0 && <p className="text-yellow-600 mb-2">⚠️ {progress.failed} addresses could not be geocoded.</p>}
+            <p>Processing is complete. You can now download the results.</p>
           </div>
         )}
       </div>

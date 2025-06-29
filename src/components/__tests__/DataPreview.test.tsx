@@ -15,7 +15,7 @@ describe("DataPreview Component", () => {
   it("should render data preview table with headers", () => {
     render(<DataPreview data={mockData} headers={mockHeaders} />);
 
-    expect(screen.getByText("Datenvorschau (3 von 3 Zeilen)")).toBeInTheDocument();
+    expect(screen.getByText("Data preview (3 of 3 rows)")).toBeInTheDocument();
 
     // Check headers
     expect(screen.getByText("name")).toBeInTheDocument();
@@ -46,12 +46,12 @@ describe("DataPreview Component", () => {
 
     render(<DataPreview data={largeData} headers={["name", "city"]} maxRows={3} />);
 
-    expect(screen.getByText("Datenvorschau (3 von 10 Zeilen)")).toBeInTheDocument();
+    expect(screen.getByText("Data preview (3 of 10 rows)")).toBeInTheDocument();
     expect(screen.getByText("Person 1")).toBeInTheDocument();
     expect(screen.getByText("Person 3")).toBeInTheDocument();
     expect(screen.queryByText("Person 4")).not.toBeInTheDocument();
 
-    expect(screen.getByText("... und 7 weitere Zeilen")).toBeInTheDocument();
+    expect(screen.getByText("... and 7 more rows")).toBeInTheDocument();
   });
 
   it("should handle missing data values", () => {
@@ -70,13 +70,13 @@ describe("DataPreview Component", () => {
   it("should show message when no data is available", () => {
     render(<DataPreview data={[]} headers={[]} />);
 
-    expect(screen.getByText("Keine Daten zum Anzeigen verfügbar")).toBeInTheDocument();
+    expect(screen.getByText("No data available to display")).toBeInTheDocument();
   });
 
   it("should show message when headers are empty", () => {
     render(<DataPreview data={mockData} headers={[]} />);
 
-    expect(screen.getByText("Keine Daten zum Anzeigen verfügbar")).toBeInTheDocument();
+    expect(screen.getByText("No data available to display")).toBeInTheDocument();
   });
 
   it("should use default maxRows of 5", () => {
@@ -86,8 +86,8 @@ describe("DataPreview Component", () => {
 
     render(<DataPreview data={largeData} headers={["name"]} />);
 
-    expect(screen.getByText("Datenvorschau (5 von 8 Zeilen)")).toBeInTheDocument();
-    expect(screen.getByText("... und 3 weitere Zeilen")).toBeInTheDocument();
+    expect(screen.getByText("Data preview (5 of 8 rows)")).toBeInTheDocument();
+    expect(screen.getByText("... and 3 more rows")).toBeInTheDocument();
   });
 
   it("should have proper table structure", () => {

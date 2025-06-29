@@ -39,13 +39,13 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
   return (
     <div className="w-full space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Adressspalten zuordnen</h3>
-        <p className="text-sm text-gray-600 mb-6">Wählen Sie die Spalten aus, die Ihre Adressdaten enthalten. Mindestens eine Spalte muss ausgewählt werden.</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Map address columns</h3>
+        <p className="text-sm text-gray-600 mb-6">Select the columns that contain your address data. At least one column must be selected.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label htmlFor="zipcode-select" className="block text-sm font-medium text-gray-700 mb-2">
-              Postleitzahl (PLZ)
+              ZIP Code
             </label>
             <select
               id="zipcode-select"
@@ -53,7 +53,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
               onChange={(e) => setZipCode(e.target.value)}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">-- Spalte auswählen --</option>
+              <option value="">-- Select column --</option>
               {headers.map((header) => (
                 <option key={header} value={header}>
                   {header}
@@ -64,7 +64,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
 
           <div>
             <label htmlFor="street-select" className="block text-sm font-medium text-gray-700 mb-2">
-              Straße
+              Street
             </label>
             <select
               id="street-select"
@@ -72,7 +72,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
               onChange={(e) => setStreet(e.target.value)}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">-- Spalte auswählen --</option>
+              <option value="">-- Select column --</option>
               {headers.map((header) => (
                 <option key={header} value={header}>
                   {header}
@@ -83,7 +83,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
 
           <div>
             <label htmlFor="city-select" className="block text-sm font-medium text-gray-700 mb-2">
-              Ort/Stadt
+              City
             </label>
             <select
               id="city-select"
@@ -91,7 +91,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
               onChange={(e) => setCity(e.target.value)}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">-- Spalte auswählen --</option>
+              <option value="">-- Select column --</option>
               {headers.map((header) => (
                 <option key={header} value={header}>
                   {header}
@@ -103,8 +103,8 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
       </div>
 
       <div>
-        <h4 className="text-base font-medium text-gray-900 mb-3">Zusätzliche Daten (Metadaten)</h4>
-        <p className="text-sm text-gray-600 mb-4">Wählen Sie zusätzliche Spalten aus, die in der Ausgabedatei enthalten sein sollen.</p>
+        <h4 className="text-base font-medium text-gray-900 mb-3">Additional data (Metadata)</h4>
+        <p className="text-sm text-gray-600 mb-4">Select additional columns to include in the output file.</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {headers.map((header) => (
@@ -132,7 +132,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
               <span className="text-sm text-gray-900 truncate">{header}</span>
               {isAddressColumn(header) && (
                 <span id={`${header}-disabled`} className="sr-only">
-                  (bereits als Adressspalte ausgewählt)
+                  (already selected as address column)
                 </span>
               )}
             </label>
@@ -142,7 +142,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
         {metadataColumns.length > 0 && (
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
             <p className="text-sm text-blue-700">
-              <strong>{metadataColumns.length}</strong> zusätzliche Spalte(n) ausgewählt: {metadataColumns.join(", ")}
+              <strong>{metadataColumns.length}</strong> additional column(s) selected: {metadataColumns.join(", ")}
             </p>
           </div>
         )}

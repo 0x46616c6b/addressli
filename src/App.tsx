@@ -60,12 +60,12 @@ function App(): React.JSX.Element {
         }
 
         if (result.data.length === 0) {
-          addError("Die CSV-Datei enthält keine Daten.");
+          addError("The CSV file contains no data.");
           return;
         }
 
         if (result.headers.length === 0) {
-          addError("Die CSV-Datei enthält keine Spaltenüberschriften.");
+          addError("The CSV file contains no column headers.");
           return;
         }
 
@@ -76,7 +76,7 @@ function App(): React.JSX.Element {
           currentStep: "preview",
         }));
       } catch (error) {
-        addError(`Fehler beim Laden der CSV-Datei: ${error instanceof Error ? error.message : "Unbekannter Fehler"}`);
+        addError(`Error loading CSV file: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     },
     [addError]
@@ -127,13 +127,13 @@ function App(): React.JSX.Element {
             processedAddress.geocodeResult = geocodeResult;
             processedAddress.coordinates = [geocodeResult.lat, geocodeResult.lon];
           } else {
-            processedAddress.error = "Adresse konnte nicht gefunden werden";
+            processedAddress.error = "Address could not be found";
           }
         } catch (error) {
-          processedAddress.error = error instanceof Error ? error.message : "Geocoding-Fehler";
+          processedAddress.error = error instanceof Error ? error.message : "Geocoding error";
         }
       } else {
-        processedAddress.error = "Leere Adresse";
+        processedAddress.error = "Empty address";
       }
 
       processedAddresses.push(processedAddress);
@@ -178,7 +178,7 @@ function App(): React.JSX.Element {
           <div className="space-y-6">
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">Adressli</h1>
-              <p className="text-lg text-gray-600 mb-8">CSV-Adressdaten geocodieren für die Nutzung in Karten</p>
+              <p className="text-lg text-gray-600 mb-8">Geocode CSV address data for use in maps</p>
             </div>
             <FileUpload onFileSelected={handleFileSelected} />
           </div>
@@ -188,8 +188,8 @@ function App(): React.JSX.Element {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Datenvorschau</h2>
-              <p className="text-gray-600">Überprüfen Sie Ihre Daten und wählen Sie dann die Adressspalten aus</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Data Preview</h2>
+              <p className="text-gray-600">Review your data and then select the address columns</p>
             </div>
             <DataPreview data={state.csvData} headers={state.headers} />
             <div className="flex justify-center">
@@ -197,7 +197,7 @@ function App(): React.JSX.Element {
                 onClick={() => setCurrentStep("mapping")}
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                Weiter zur Spaltenauswahl
+                Continue to Column Selection
               </button>
             </div>
           </div>
@@ -207,8 +207,8 @@ function App(): React.JSX.Element {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Spalten zuordnen</h2>
-              <p className="text-gray-600">Wählen Sie die Spalten für Adressdaten und zusätzliche Metadaten aus</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Map Columns</h2>
+              <p className="text-gray-600">Select columns for address data and additional metadata</p>
             </div>
             <ColumnSelector headers={state.headers} onMappingChange={handleMappingChange} initialMapping={state.columnMapping} />
             <div className="flex justify-center space-x-4">
@@ -216,14 +216,14 @@ function App(): React.JSX.Element {
                 onClick={() => setCurrentStep("preview")}
                 className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               >
-                Zurück
+                Back
               </button>
               <button
                 onClick={handleStartProcessing}
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 disabled={!state.columnMapping.zipCode && !state.columnMapping.street && !state.columnMapping.city}
               >
-                Geocoding starten
+                Start Geocoding
               </button>
             </div>
           </div>
@@ -233,8 +233,8 @@ function App(): React.JSX.Element {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Adressen werden geocodiert</h2>
-              <p className="text-gray-600">Bitte warten Sie, während die Adressen verarbeitet werden...</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Geocoding addresses</h2>
+              <p className="text-gray-600">Please wait while the addresses are being processed...</p>
             </div>
             <ProcessingProgressComponent progress={state.progress} isProcessing={state.isProcessing} onCancel={handleCancelProcessing} />
           </div>
@@ -244,8 +244,8 @@ function App(): React.JSX.Element {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Geocoding abgeschlossen</h2>
-              <p className="text-gray-600">Ihre Adressen wurden erfolgreich verarbeitet</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Geocoding completed</h2>
+              <p className="text-gray-600">Your addresses have been successfully processed</p>
             </div>
             <Results
               processedAddresses={state.processedAddresses}
@@ -270,10 +270,10 @@ function App(): React.JSX.Element {
             {(["upload", "preview", "mapping", "processing", "results"] as const).map((step, index) => {
               const stepLabels = {
                 upload: "Upload",
-                preview: "Vorschau",
-                mapping: "Zuordnung",
-                processing: "Verarbeitung",
-                results: "Ergebnisse",
+                preview: "Preview",
+                mapping: "Mapping",
+                processing: "Processing",
+                results: "Results",
               };
 
               const isActive = state.currentStep === step;
@@ -314,7 +314,7 @@ function App(): React.JSX.Element {
         {/* Footer */}
         <footer className="mt-8 text-center text-sm text-gray-500">
           <p>
-            Adressli nutzt OpenStreetMap Nominatim für Geocoding. Bitte beachten Sie die{" "}
+            Adressli uses OpenStreetMap Nominatim for geocoding. Please respect the{" "}
             <a
               href="https://operations.osmfoundation.org/policies/nominatim/"
               target="_blank"

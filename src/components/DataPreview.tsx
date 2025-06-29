@@ -11,13 +11,13 @@ export function DataPreview({ data, headers, maxRows = 5 }: DataPreviewProps): R
   const previewData = data.slice(0, maxRows);
 
   if (!data.length || !headers.length) {
-    return <div className="text-center py-8 text-gray-500">Keine Daten zum Anzeigen verfügbar</div>;
+    return <div className="text-center py-8 text-gray-500">No data available to display</div>;
   }
 
   return (
     <div className="w-full">
       <h3 className="text-lg font-medium text-gray-900 mb-4">
-        Datenvorschau ({previewData.length} von {data.length} Zeilen)
+        Data preview ({previewData.length} of {data.length} rows)
       </h3>
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
@@ -45,7 +45,7 @@ export function DataPreview({ data, headers, maxRows = 5 }: DataPreviewProps): R
         </table>
       </div>
 
-      {data.length > maxRows && <p className="mt-3 text-sm text-gray-500 text-center">... und {data.length - maxRows} weitere Zeilen</p>}
+      {data.length > maxRows && <p className="mt-3 text-sm text-gray-500 text-center">... and {data.length - maxRows} more rows</p>}
     </div>
   );
 }

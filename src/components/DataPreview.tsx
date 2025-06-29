@@ -16,8 +16,8 @@ export function DataPreview({ data, headers, maxRows = 5 }: DataPreviewProps): R
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
-        Data preview ({previewData.length} of {data.length} rows)
+      <h3 id="data-preview-heading" className="text-lg font-medium text-gray-900 mb-4">
+        Data Preview
       </h3>
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
@@ -45,7 +45,10 @@ export function DataPreview({ data, headers, maxRows = 5 }: DataPreviewProps): R
         </table>
       </div>
 
-      {data.length > maxRows && <p className="mt-3 text-sm text-gray-500 text-center">... and {data.length - maxRows} more rows</p>}
+      <div className="mt-3 text-sm text-gray-500 text-center">
+        Showing {previewData.length} of {data.length} rows
+        {data.length > maxRows && <span> • {data.length - maxRows} more rows available</span>}
+      </div>
     </div>
   );
 }

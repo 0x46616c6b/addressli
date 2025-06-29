@@ -15,7 +15,8 @@ describe("DataPreview Component", () => {
   it("should render data preview table with headers", () => {
     render(<DataPreview data={mockData} headers={mockHeaders} />);
 
-    expect(screen.getByText("Data preview (3 of 3 rows)")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Data Preview" })).toBeInTheDocument();
+    expect(screen.getByText("Showing 3 of 3 rows")).toBeInTheDocument();
 
     // Check headers
     expect(screen.getByText("name")).toBeInTheDocument();
@@ -46,12 +47,11 @@ describe("DataPreview Component", () => {
 
     render(<DataPreview data={largeData} headers={["name", "city"]} maxRows={3} />);
 
-    expect(screen.getByText("Data preview (3 of 10 rows)")).toBeInTheDocument();
+    expect(screen.getByText("Showing 3 of 10 rows")).toBeInTheDocument();
+    expect(screen.getByText(/7.*more rows available/)).toBeInTheDocument();
     expect(screen.getByText("Person 1")).toBeInTheDocument();
     expect(screen.getByText("Person 3")).toBeInTheDocument();
     expect(screen.queryByText("Person 4")).not.toBeInTheDocument();
-
-    expect(screen.getByText("... and 7 more rows")).toBeInTheDocument();
   });
 
   it("should handle missing data values", () => {
@@ -86,8 +86,8 @@ describe("DataPreview Component", () => {
 
     render(<DataPreview data={largeData} headers={["name"]} />);
 
-    expect(screen.getByText("Data preview (5 of 8 rows)")).toBeInTheDocument();
-    expect(screen.getByText("... and 3 more rows")).toBeInTheDocument();
+    expect(screen.getByText("Showing 5 of 8 rows")).toBeInTheDocument();
+    expect(screen.getByText(/3.*more rows available/)).toBeInTheDocument();
   });
 
   it("should have proper table structure", () => {
@@ -103,5 +103,49 @@ describe("DataPreview Component", () => {
     // Check for table rows (excluding header row)
     const rows = screen.getAllByRole("row");
     expect(rows).toHaveLength(4); // 1 header + 3 data rows
+  });
+
+  describe("Accessibility", () => {
+    it("should have proper heading structure with ID", () => {
+      render(<DataPreview data={mockData} headers={mockHeaders} />);
+
+      const heading = screen.getByRole("heading", { name: "Data Preview" });
+      expect(heading.tagName).toBe("H3");
+      expect(heading).toHaveAttribute("id", "data-preview-heading");
+    });
+
+    it("should have accessible table structure", () => {
+      render(<DataPreview data={mockData} headers={mockHeaders} />);
+
+      const table = screen.getByRole("table");
+      expect(table).toBeInTheDocument();
+
+      // Check that headers have proper scope
+      const columnHeaders = screen.getAllByRole("columnheader");
+      columnHeaders.forEach((header) => {
+        expect(header).toHaveAttribute("scope", "col");
+      });
+    });
+
+    it("should display row information below the table", () => {
+      const largeData: CSVRow[] = Array.from({ length: 10 }, (_, i) => ({
+        name: `Person ${i + 1}`,
+        city: `City ${i + 1}`,
+      }));
+
+      render(<DataPreview data={largeData} headers={["name", "city"]} maxRows={3} />);
+
+      // Check that the additional rows message is displayed
+      expect(screen.getByText(/more rows available/)).toBeInTheDocument();
+
+      // Check that there's a section below the table with row information
+      const rowInfoDiv = document.querySelector(".mt-3.text-sm.text-gray-500.text-center");
+      expect(rowInfoDiv).toBeInTheDocument();
+
+      // Verify it contains expected information
+      expect(rowInfoDiv?.textContent).toContain("Showing");
+      expect(rowInfoDiv?.textContent).toContain("rows");
+      expect(rowInfoDiv?.textContent).toContain("more rows available");
+    });
   });
 });

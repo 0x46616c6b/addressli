@@ -166,28 +166,33 @@ function App(): React.JSX.Element {
 
       case "preview":
         return (
-          <div className="space-y-6 sm:space-y-8">
-            {/* Data Preview Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Data Preview</h3>
-              <DataPreview data={state.csvData} headers={state.headers} />
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Preview & Map Columns</h2>
+              <p className="text-gray-600">Review your data and map the address columns</p>
             </div>
 
-            {/* Column Mapping Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Column Mapping</h3>
-              <ColumnSelector headers={state.headers} onMappingChange={handleMappingChange} initialMapping={state.columnMapping} />
-            </div>
+            <div className="space-y-8">
+              {/* Data Preview Section */}
+              <section className="space-y-4">
+                <DataPreview data={state.csvData} headers={state.headers} />
+              </section>
 
-            {/* Action Button */}
-            <div className="flex justify-center pt-4">
-              <button
-                onClick={handleStartProcessing}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!state.columnMapping.zipCode && !state.columnMapping.street && !state.columnMapping.city}
-              >
-                Start Geocoding
-              </button>
+              {/* Column Mapping Section */}
+              <section className="space-y-4">
+                <ColumnSelector headers={state.headers} onMappingChange={handleMappingChange} initialMapping={state.columnMapping} />
+              </section>
+
+              {/* Action Button */}
+              <div className="flex justify-center pt-6">
+                <button
+                  onClick={handleStartProcessing}
+                  className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+                  disabled={!state.columnMapping.zipCode && !state.columnMapping.street && !state.columnMapping.city}
+                >
+                  Start Geocoding
+                </button>
+              </div>
             </div>
           </div>
         );

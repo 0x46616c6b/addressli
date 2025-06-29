@@ -15,7 +15,8 @@ describe("DataPreview Component", () => {
   it("should render data preview table with headers", () => {
     render(<DataPreview data={mockData} headers={mockHeaders} />);
 
-    expect(screen.getByText("Data preview (3 of 3 rows)")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Data Preview" })).toBeInTheDocument();
+    expect(screen.getByText("Showing 3 of 3 rows")).toBeInTheDocument();
 
     // Check headers
     expect(screen.getByText("name")).toBeInTheDocument();
@@ -46,12 +47,11 @@ describe("DataPreview Component", () => {
 
     render(<DataPreview data={largeData} headers={["name", "city"]} maxRows={3} />);
 
-    expect(screen.getByText("Data preview (3 of 10 rows)")).toBeInTheDocument();
+    expect(screen.getByText("Showing 3 of 10 rows")).toBeInTheDocument();
+    expect(screen.getByText(/7.*more rows available/)).toBeInTheDocument();
     expect(screen.getByText("Person 1")).toBeInTheDocument();
     expect(screen.getByText("Person 3")).toBeInTheDocument();
     expect(screen.queryByText("Person 4")).not.toBeInTheDocument();
-
-    expect(screen.getByText("... and 7 more rows")).toBeInTheDocument();
   });
 
   it("should handle missing data values", () => {
@@ -86,8 +86,8 @@ describe("DataPreview Component", () => {
 
     render(<DataPreview data={largeData} headers={["name"]} />);
 
-    expect(screen.getByText("Data preview (5 of 8 rows)")).toBeInTheDocument();
-    expect(screen.getByText("... and 3 more rows")).toBeInTheDocument();
+    expect(screen.getByText("Showing 5 of 8 rows")).toBeInTheDocument();
+    expect(screen.getByText(/3.*more rows available/)).toBeInTheDocument();
   });
 
   it("should have proper table structure", () => {

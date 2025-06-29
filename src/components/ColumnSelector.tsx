@@ -39,7 +39,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
   return (
     <div className="w-full space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Map address columns</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-3">Address Columns</h3>
         <p className="text-sm text-gray-600 mb-6">Select the columns that contain your address data. At least one column must be selected.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -103,7 +103,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
       </div>
 
       <div>
-        <h4 className="text-base font-medium text-gray-900 mb-3">Additional data (Metadata)</h4>
+        <h3 className="text-lg font-medium text-gray-900 mb-3">Additional Data</h3>
         <p className="text-sm text-gray-600 mb-4">Select additional columns to include in the output file.</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">

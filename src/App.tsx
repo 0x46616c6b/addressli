@@ -166,7 +166,7 @@ function App(): React.JSX.Element {
           <div className="space-y-6">
             <div className="text-center">
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                <span className="text-blue-600 mr-3">🗺️</span>
+                <span className="text-blue-600 mr-3" aria-hidden="true">🗺️</span>
                 adressli
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">

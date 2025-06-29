@@ -114,6 +114,48 @@ src/
 - **User-Friendly Messages**: Provide clear, actionable error messages
 - **Graceful Degradation**: Handle failures without breaking the application
 
+### Responsive Design
+
+- **Mobile-First Approach**: Design for mobile devices first, then scale up to larger screens
+- **Tailwind Breakpoints**: Use consistent breakpoints (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`)
+- **Touch-Friendly UI**: Minimum 44px touch targets for mobile interactions
+- **Flexible Layouts**: Use grid and flexbox layouts that adapt to different screen sizes
+- **Readable Typography**: Responsive text scaling and optimal line lengths
+- **Progressive Enhancement**: Ensure core functionality works on all devices
+
+### Responsive Implementation Guidelines
+
+```css
+/* ✅ Good: Mobile-first responsive design */
+.container {
+  @apply w-full px-4;
+  @apply sm:px-6 md:px-8;
+  @apply lg:max-w-4xl lg:mx-auto;
+  @apply xl:max-w-6xl;
+}
+
+/* ✅ Good: Responsive component sizing */
+.step-indicator {
+  @apply flex flex-col space-y-2;
+  @apply sm:flex-row sm:space-y-0 sm:space-x-4;
+  @apply md:justify-center;
+}
+
+/* ❌ Avoid: Fixed pixel values without responsive consideration */
+.component {
+  width: 800px; /* Not responsive */
+  margin: 20px; /* Fixed spacing */
+}
+```
+
+### Breakpoint Strategy
+
+- **`sm:` (640px+)**: Small tablets and large phones in landscape
+- **`md:` (768px+)**: Tablets and small laptops
+- **`lg:` (1024px+)**: Laptops and desktops
+- **`xl:` (1280px+)**: Large desktops
+- **`2xl:` (1536px+)**: Very large screens
+
 ### Example: Optimized Batch Processing
 
 ```typescript

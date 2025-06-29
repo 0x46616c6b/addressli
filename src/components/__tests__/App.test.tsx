@@ -20,19 +20,20 @@ describe("App Integration", () => {
     it("should display progress steps", () => {
       render(<App />);
 
-      expect(screen.getByText("Upload")).toBeInTheDocument();
-      expect(screen.getByText("Preview & Map")).toBeInTheDocument();
-      expect(screen.getByText("Processing")).toBeInTheDocument();
-      expect(screen.getByText("Results")).toBeInTheDocument();
+      expect(screen.getAllByText("Upload")).toHaveLength(2); // Mobile + Desktop
+      expect(screen.getAllByText("Preview & Map")).toHaveLength(2);
+      expect(screen.getAllByText("Processing")).toHaveLength(2);
+      expect(screen.getAllByText("Results")).toHaveLength(2);
     });
 
     it("should show the active step correctly", () => {
       render(<App />);
 
-      // The first step should be active
-      const stepElements = screen.getAllByText(/Upload|Preview & Map|Processing|Results/);
-      const uploadElement = stepElements.find((el) => el.textContent === "Upload");
-      expect(uploadElement).toHaveClass("text-blue-600", "font-medium");
+      // The first step should be active - both mobile and desktop versions
+      const uploadElements = screen.getAllByText("Upload");
+      uploadElements.forEach((element) => {
+        expect(element).toHaveClass("text-blue-600", "font-medium");
+      });
     });
   });
 
@@ -40,13 +41,19 @@ describe("App Integration", () => {
     it("should show correct step indicators", () => {
       render(<App />);
 
-      // Check that step 1 is active
+      // Check that step 1 is active - both mobile and desktop versions
       const stepNumbers = screen.getAllByText("1");
-      expect(stepNumbers[0]).toHaveClass("bg-blue-600");
+      expect(stepNumbers).toHaveLength(2); // Mobile + Desktop
+      stepNumbers.forEach((element) => {
+        expect(element).toHaveClass("bg-blue-600");
+      });
 
-      // Check that other steps are inactive
-      const step2 = screen.getByText("2");
-      expect(step2).toHaveClass("bg-gray-300");
+      // Check that other steps are inactive - both mobile and desktop versions
+      const step2Elements = screen.getAllByText("2");
+      expect(step2Elements).toHaveLength(2);
+      step2Elements.forEach((element) => {
+        expect(element).toHaveClass("bg-gray-300");
+      });
     });
   });
 

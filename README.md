@@ -137,12 +137,46 @@ npm run test
 # Tests with watch mode
 npm run test -- --watch
 
+# Run tests once
+npm run test:run
+
 # Test coverage
-npm run test -- --coverage
+npm run test:coverage
 
 # Test UI
 npm run test:ui
 ```
+
+### Coverage Reports
+
+The project uses Vitest with V8 coverage provider to generate comprehensive test coverage reports:
+
+- **HTML Report**: Available in `coverage/index.html` after running `npm run test:coverage`
+- **LCOV Report**: Generated in `coverage/lcov.info` for SonarCloud integration
+- **JSON Report**: Available in `coverage/coverage-final.json`
+
+Coverage is configured to exclude:
+
+- Test files
+- Configuration files
+- Node modules
+- Distribution files
+
+## SonarCloud Integration
+
+This project is integrated with SonarCloud for continuous code quality and security analysis:
+
+- **Quality Gate**: Automated code quality checks
+- **Code Coverage**: Test coverage tracking via LCOV reports
+- **Security Hotspots**: Security vulnerability detection
+- **Maintainability**: Code smell detection and technical debt analysis
+
+The SonarCloud analysis runs automatically on:
+
+- Pull requests to main/develop branches
+- Pushes to main/develop branches
+
+Coverage data is automatically uploaded to SonarCloud through the GitHub Actions workflow.
 
 ## Accessibility
 

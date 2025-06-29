@@ -170,7 +170,7 @@ export function downloadFailedAddressesCSV(failedAddresses: ProcessedAddress[], 
   });
 
   // Add error column
-  const headers = [...Array.from(allColumns), "error_message"];
+  const headers = [...Array.from(allColumns).sort(), "error_message"];
 
   // Prepare data with error messages
   const csvData = failedAddresses.map((addr) => {

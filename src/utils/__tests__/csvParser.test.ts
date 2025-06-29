@@ -248,7 +248,21 @@ describe("csvParser utilities", () => {
     let mockClick: ReturnType<typeof vi.fn>;
     let mockBlob: ReturnType<typeof vi.fn>;
 
+    // Store original implementations
+    let originalCreateElement: typeof document.createElement;
+    let originalAppendChild: typeof document.body.appendChild;
+    let originalRemoveChild: typeof document.body.removeChild;
+    let originalURL: typeof global.URL;
+    let originalBlob: typeof global.Blob;
+
     beforeEach(() => {
+      // Save original implementations
+      originalCreateElement = document.createElement;
+      originalAppendChild = document.body.appendChild;
+      originalRemoveChild = document.body.removeChild;
+      originalURL = global.URL;
+      originalBlob = global.Blob;
+
       // Mock document.createElement
       mockCreateElement = vi.fn();
       mockClick = vi.fn();
@@ -301,6 +315,26 @@ describe("csvParser utilities", () => {
     });
 
     afterEach(() => {
+      // Restore original implementations
+      Object.defineProperty(document, "createElement", {
+        value: originalCreateElement,
+        writable: true,
+      });
+      Object.defineProperty(document.body, "appendChild", {
+        value: originalAppendChild,
+        writable: true,
+      });
+      Object.defineProperty(document.body, "removeChild", {
+        value: originalRemoveChild,
+        writable: true,
+      });
+      Object.defineProperty(global, "URL", {
+        value: originalURL,
+        writable: true,
+      });
+      global.Blob = originalBlob;
+
+      // Clear all mocks
       vi.clearAllMocks();
     });
 

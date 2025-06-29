@@ -3,8 +3,8 @@ import React from "react";
 export type AppStep = "upload" | "preview" | "processing" | "results";
 
 interface MultiStepIndicatorProps {
-  currentStep: AppStep;
-  className?: string;
+  readonly currentStep: AppStep;
+  readonly className?: string;
 }
 
 const stepConfig = {
@@ -14,9 +14,15 @@ const stepConfig = {
   results: { label: "Results", order: 3 },
 } as const;
 
-export function MultiStepIndicator({ currentStep, className = "" }: MultiStepIndicatorProps): React.JSX.Element {
+export function MultiStepIndicator({ currentStep, className = "" }: Readonly<MultiStepIndicatorProps>): React.JSX.Element {
   const steps = Object.entries(stepConfig) as [AppStep, (typeof stepConfig)[AppStep]][];
   const currentStepOrder = stepConfig[currentStep].order;
+
+  const getStepStyles = (isActive: boolean, isCompleted: boolean): string => {
+    if (isActive) return "bg-blue-600 text-white";
+    if (isCompleted) return "bg-green-600 text-white";
+    return "bg-gray-300 text-gray-600";
+  };
 
   return (
     <div className={`w-full ${className}`}>
@@ -31,7 +37,7 @@ export function MultiStepIndicator({ currentStep, className = "" }: MultiStepInd
               <div
                 className={`
                   flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium
-                  ${isActive ? "bg-blue-600 text-white" : isCompleted ? "bg-green-600 text-white" : "bg-gray-300 text-gray-600"}
+                  ${getStepStyles(isActive, isCompleted)}
                 `}
                 aria-current={isActive ? "step" : undefined}
                 aria-label={isActive ? "current step" : undefined}
@@ -56,7 +62,7 @@ export function MultiStepIndicator({ currentStep, className = "" }: MultiStepInd
                 <div
                   className={`
                     flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full text-xs md:text-sm font-medium
-                    ${isActive ? "bg-blue-600 text-white" : isCompleted ? "bg-green-600 text-white" : "bg-gray-300 text-gray-600"}
+                    ${getStepStyles(isActive, isCompleted)}
                   `}
                   aria-current={isActive ? "step" : undefined}
                   aria-label={isActive ? "current step" : undefined}

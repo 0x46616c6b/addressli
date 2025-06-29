@@ -24,7 +24,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
 
     const response = await fetch(`${NOMINATIM_BASE_URL}?${params}`, {
       headers: {
-        "User-Agent": "Adressli/1.0 (CSV Address Processor)",
+        "User-Agent": "addressli/1.0 (CSV Address Processor)",
       },
     });
 

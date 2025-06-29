@@ -6,7 +6,7 @@ describe("AppHeader", () => {
   it("renders with default title and subtitle", () => {
     render(<AppHeader />);
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("🗺️adressli");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("addressli");
     expect(screen.getByText(/Transform your CSV address data into map-ready coordinates/)).toBeInTheDocument();
   });
 

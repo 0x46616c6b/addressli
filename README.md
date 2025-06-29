@@ -1,10 +1,10 @@
-# Adressli
+# addressli
 
 A modern web application for geocoding CSV address data for use in mapping projects.
 
 ## Overview
 
-Adressli allows users to upload CSV files containing address data, preview the data, map address columns, and geocode them. The result is a JSON file in GeoJSON format that can be used directly in mapping libraries such as Leaflet.
+addressli allows users to upload CSV files containing address data, preview the data, map address columns, and geocode them. The result is a JSON file in GeoJSON format that can be used directly in mapping libraries such as Leaflet.
 
 ## Features
 
@@ -180,7 +180,7 @@ Coverage data is automatically uploaded to SonarCloud through the GitHub Actions
 
 ## Accessibility
 
-Adressli was developed with comprehensive accessibility in mind:
+addressli was developed with comprehensive accessibility in mind:
 
 - Keyboard navigation for all interactive elements
 - ARIA labels and semantic HTML

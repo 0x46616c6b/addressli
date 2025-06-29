@@ -165,8 +165,13 @@ function App(): React.JSX.Element {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Adressli</h1>
-              <p className="text-lg text-gray-600 mb-8">Geocode CSV address data for use in maps</p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                <span className="text-blue-600 mr-3" aria-hidden="true">🗺️</span>
+                adressli
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Transform your CSV address data into map-ready coordinates (GeoJSON).
+              </p>
             </div>
             <FileUpload onFileSelected={handleFileSelected} />
           </div>

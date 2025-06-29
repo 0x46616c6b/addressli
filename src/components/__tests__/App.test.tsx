@@ -12,8 +12,8 @@ describe("App Integration", () => {
     it("should render the upload step initially", () => {
       render(<App />);
 
-      expect(screen.getByText("Adressli")).toBeInTheDocument();
-      expect(screen.getByText("Geocode CSV address data for use in maps")).toBeInTheDocument();
+      expect(screen.getByText("adressli")).toBeInTheDocument();
+      expect(screen.getByText("Transform your CSV address data into map-ready coordinates (GeoJSON).")).toBeInTheDocument();
       expect(screen.getByText("Upload CSV file")).toBeInTheDocument();
     });
 
@@ -55,7 +55,7 @@ describe("App Integration", () => {
       render(<App />);
 
       // The app should render without crashing
-      expect(screen.getByText("Adressli")).toBeInTheDocument();
+      expect(screen.getByText("adressli")).toBeInTheDocument();
     });
 
     it("should show footer with attribution", () => {
@@ -79,7 +79,7 @@ describe("App Integration", () => {
       render(<App />);
 
       const mainHeading = screen.getByRole("heading", { level: 1 });
-      expect(mainHeading).toHaveTextContent("Adressli");
+      expect(mainHeading).toHaveTextContent("adressli");
     });
   });
 

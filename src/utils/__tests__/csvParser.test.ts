@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CSVRow } from "../../types";
-import { getCSVPreview, isValidCSVFile, validateColumnSelection } from "../csvParser";
+import { autoDetectColumns, getCSVPreview, isValidCSVFile, validateColumnSelection } from "../csvParser";
 
 describe("csvParser utilities", () => {
   describe("isValidCSVFile", () => {
@@ -114,6 +114,127 @@ describe("csvParser utilities", () => {
       const result = validateColumnSelection(headers, "", "street", "");
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
+    });
+  });
+
+  describe("autoDetectColumns", () => {
+    it("should detect German column names", () => {
+      const germanHeaders = ["Name", "PLZ", "Straße", "Ort", "Email"];
+      const result = autoDetectColumns(germanHeaders);
+      expect(result.zipCode).toBe("PLZ");
+      expect(result.street).toBe("Straße");
+      expect(result.city).toBe("Ort");
+    });
+
+    it("should detect English column names", () => {
+      const englishHeaders = ["Name", "ZIP", "Street", "City", "Email"];
+      const result = autoDetectColumns(englishHeaders);
+      expect(result.zipCode).toBe("ZIP");
+      expect(result.street).toBe("Street");
+      expect(result.city).toBe("City");
+    });
+
+    it("should detect mixed case column names", () => {
+      const mixedHeaders = ["name", "POSTLEITZAHL", "straße", "STADT", "email"];
+      const result = autoDetectColumns(mixedHeaders);
+      expect(result.zipCode).toBe("POSTLEITZAHL");
+      expect(result.street).toBe("straße");
+      expect(result.city).toBe("STADT");
+    });
+
+    it("should handle columns with extra whitespace", () => {
+      const spacedHeaders = [" PLZ ", " Straße ", " Ort ", "Name"];
+      const result = autoDetectColumns(spacedHeaders);
+      expect(result.zipCode).toBe(" PLZ ");
+      expect(result.street).toBe(" Straße ");
+      expect(result.city).toBe(" Ort ");
+    });
+
+    it("should detect alternative German terms", () => {
+      const alternativeHeaders = ["Name", "Postleitzahl", "Anschrift", "Stadt", "Email"];
+      const result = autoDetectColumns(alternativeHeaders);
+      expect(result.zipCode).toBe("Postleitzahl");
+      expect(result.street).toBe("Anschrift");
+      expect(result.city).toBe("Stadt");
+    });
+
+    it("should detect alternative English terms", () => {
+      const alternativeHeaders = ["Name", "Postal Code", "Address", "Town", "Email"];
+      const result = autoDetectColumns(alternativeHeaders);
+      expect(result.zipCode).toBe("Postal Code");
+      expect(result.street).toBe("Address");
+      expect(result.city).toBe("Town");
+    });
+
+    it("should prioritize exact matches over partial matches", () => {
+      const headers = ["Name", "PLZ Code", "PLZ", "Street Name", "Street", "City Area", "City"];
+      const result = autoDetectColumns(headers);
+      expect(result.zipCode).toBe("PLZ"); // Should prefer exact match
+      expect(result.street).toBe("Street"); // Should prefer exact match
+      expect(result.city).toBe("City"); // Should prefer exact match
+    });
+
+    it("should return undefined for missing columns", () => {
+      const limitedHeaders = ["Name", "Email", "Phone"];
+      const result = autoDetectColumns(limitedHeaders);
+      expect(result.zipCode).toBeUndefined();
+      expect(result.street).toBeUndefined();
+      expect(result.city).toBeUndefined();
+    });
+
+    it("should handle empty headers array", () => {
+      const result = autoDetectColumns([]);
+      expect(result.zipCode).toBeUndefined();
+      expect(result.street).toBeUndefined();
+      expect(result.city).toBeUndefined();
+    });
+
+    it("should detect partial matches in column names", () => {
+      const partialHeaders = ["Customer Name", "ZIP Code Area", "Street Address", "City Name", "Email"];
+      const result = autoDetectColumns(partialHeaders);
+      expect(result.zipCode).toBe("ZIP Code Area");
+      expect(result.street).toBe("Street Address");
+      expect(result.city).toBe("City Name");
+    });
+
+    it("should handle complex real-world headers", () => {
+      const realWorldHeaders = ["Kundennummer", "Firma", "Ansprechpartner", "Straße und Hausnummer", "PLZ", "Ort", "Telefon", "E-Mail", "Bemerkungen"];
+      const result = autoDetectColumns(realWorldHeaders);
+      expect(result.zipCode).toBe("PLZ");
+      expect(result.street).toBe("Straße und Hausnummer");
+      expect(result.city).toBe("Ort");
+    });
+
+    it("should detect English business headers", () => {
+      const businessHeaders = ["Company ID", "Company Name", "Contact Person", "Business Address", "Postal Code", "Municipality", "Phone", "Email", "Notes"];
+      const result = autoDetectColumns(businessHeaders);
+      expect(result.zipCode).toBe("Postal Code");
+      expect(result.street).toBe("Business Address");
+      expect(result.city).toBe("Municipality");
+    });
+
+    it("should detect variations with underscores and hyphens", () => {
+      const variationHeaders = ["Name", "zip-code", "street_address", "city", "email"];
+      const result = autoDetectColumns(variationHeaders);
+      expect(result.zipCode).toBe("zip-code");
+      expect(result.street).toBe("street_address");
+      expect(result.city).toBe("city");
+    });
+
+    it("should detect additional German address terms", () => {
+      const additionalGermanHeaders = ["Firma", "Straße_Hausnummer", "PLZ", "Ortschaft", "Telefon"];
+      const result = autoDetectColumns(additionalGermanHeaders);
+      expect(result.zipCode).toBe("PLZ");
+      expect(result.street).toBe("Straße_Hausnummer");
+      expect(result.city).toBe("Ortschaft");
+    });
+
+    it("should detect additional English address terms", () => {
+      const additionalEnglishHeaders = ["Company", "Address Line", "Post Code", "Locality", "Contact"];
+      const result = autoDetectColumns(additionalEnglishHeaders);
+      expect(result.zipCode).toBe("Post Code");
+      expect(result.street).toBe("Address Line");
+      expect(result.city).toBe("Locality");
     });
   });
 });

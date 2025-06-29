@@ -90,3 +90,65 @@ export function validateColumnSelection(headers: string[], zipCode?: string, str
     errors,
   };
 }
+
+/**
+ * Automatically detects address columns based on common German and English column names
+ * @param headers Available column headers
+ * @returns Suggested column mapping
+ */
+export function autoDetectColumns(headers: string[]): { zipCode?: string; street?: string; city?: string } {
+  const normalizedHeaders = headers.map((header) => header.toLowerCase().trim());
+
+  // Common patterns for ZIP code columns (German and English)
+  const zipPatterns = ["plz", "postleitzahl", "zip", "zipcode", "zip code", "postal code", "postalcode", "zip-code", "post code", "postcode", "postal_code"];
+
+  // Common patterns for street columns (German and English)
+  const streetPatterns = [
+    "straße",
+    "strasse",
+    "str",
+    "street",
+    "address",
+    "adresse",
+    "anschrift",
+    "hausnummer",
+    "streetaddress",
+    "street address",
+    "street_address",
+    "addr",
+    "strasse_hausnummer",
+    "straße_hausnummer",
+    "straßeundnummer",
+    "addressline",
+    "address line",
+  ];
+
+  // Common patterns for city columns (German and English)
+  const cityPatterns = ["ort", "stadt", "city", "town", "place", "gemeinde", "municipality", "ortschaft", "wohnort", "locality", "location", "standort"];
+
+  const findBestMatch = (patterns: string[]) => {
+    // First, try to find exact matches
+    for (const pattern of patterns) {
+      const exactMatchIndex = normalizedHeaders.findIndex((header) => header === pattern);
+      if (exactMatchIndex !== -1) {
+        return headers[exactMatchIndex]; // Return original header (with correct casing)
+      }
+    }
+
+    // If no exact match found, look for partial matches
+    for (const pattern of patterns) {
+      const partialMatchIndex = normalizedHeaders.findIndex((header) => header.includes(pattern));
+      if (partialMatchIndex !== -1) {
+        return headers[partialMatchIndex]; // Return original header (with correct casing)
+      }
+    }
+
+    return undefined;
+  };
+
+  return {
+    zipCode: findBestMatch(zipPatterns),
+    street: findBestMatch(streetPatterns),
+    city: findBestMatch(cityPatterns),
+  };
+}

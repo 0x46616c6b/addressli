@@ -5,7 +5,7 @@ import { FileUpload } from "./components/FileUpload";
 import { ProcessingProgressComponent } from "./components/ProcessingProgress";
 import { Results } from "./components/Results";
 import type { CSVRow, ColumnMapping, LeafletFeatureCollection, ProcessedAddress, ProcessingProgress } from "./types";
-import { parseCSVFile, validateColumnSelection } from "./utils/csvParser";
+import { autoDetectColumns, parseCSVFile, validateColumnSelection } from "./utils/csvParser";
 import { buildAddressString, geocodeAddressWithRateLimit } from "./utils/geocoding";
 import { convertToGeoJSON } from "./utils/jsonExport";
 
@@ -69,10 +69,17 @@ function App(): React.JSX.Element {
           return;
         }
 
+        // Auto-detect column mapping based on common names
+        const autoDetectedMapping = autoDetectColumns(result.headers);
+
         setState((prev) => ({
           ...prev,
           csvData: result.data,
           headers: result.headers,
+          columnMapping: {
+            ...autoDetectedMapping,
+            metadataColumns: [], // Keep empty initially
+          },
           currentStep: "preview",
         }));
       } catch (error) {

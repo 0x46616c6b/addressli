@@ -193,6 +193,86 @@ describe("jsonExport utilities", () => {
     });
   });
 
+  describe("constructDisplayName", () => {
+    // Since constructDisplayName is not exported, we test it through convertToGeoJSON
+    const createTestAddress = (address: Record<string, string | undefined>): ProcessedAddress => ({
+      originalData: { test: "data" },
+      geocodeResult: {
+        lat: 52.52,
+        lon: 13.405,
+        display_name: "Berlin, Deutschland",
+        address,
+      },
+      coordinates: [52.52, 13.405],
+    });
+
+    it("should construct proper address from complete components", () => {
+      const address = createTestAddress({
+        road: "Musterstraße",
+        house_number: "123",
+        postcode: "10115",
+        city: "Berlin",
+      });
+
+      const result = convertToGeoJSON([address], []);
+      expect(result.features[0].properties.description).toContain("Musterstraße 123, 10115 Berlin");
+    });
+
+    it("should handle missing house number", () => {
+      const address = createTestAddress({
+        road: "Musterstraße",
+        postcode: "10115",
+        city: "Berlin",
+      });
+
+      const result = convertToGeoJSON([address], []);
+      expect(result.features[0].properties.description).toContain("Musterstraße, 10115 Berlin");
+    });
+
+    it("should handle missing postcode", () => {
+      const address = createTestAddress({
+        road: "Musterstraße",
+        house_number: "123",
+        city: "Berlin",
+      });
+
+      const result = convertToGeoJSON([address], []);
+      expect(result.features[0].properties.description).toContain("Musterstraße 123, Berlin");
+    });
+
+    it("should handle only city available", () => {
+      const address = createTestAddress({
+        city: "Berlin",
+      });
+
+      const result = convertToGeoJSON([address], []);
+      expect(result.features[0].properties.description).toContain("Berlin");
+    });
+
+    it("should use fallback components when main components missing", () => {
+      const address = createTestAddress({
+        village: "Small Village",
+        state: "Brandenburg",
+      });
+
+      const result = convertToGeoJSON([address], []);
+      expect(result.features[0].properties.description).toContain("Small Village");
+    });
+
+    it("should handle empty address components gracefully", () => {
+      const address = createTestAddress({
+        road: "",
+        house_number: "  ",
+        city: undefined,
+      });
+
+      const result = convertToGeoJSON([address], []);
+      // Should not create malformed addresses with empty components
+      expect(result.features[0].properties.description).not.toContain(",  ,");
+      expect(result.features[0].properties.description).not.toContain("  ");
+    });
+  });
+
   describe("generateExportFilename", () => {
     beforeEach(() => {
       // Mock Date to return a consistent timestamp

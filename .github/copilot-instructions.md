@@ -28,6 +28,7 @@ This is a React TypeScript application built with Vite for processing CSV files 
 - Use TypeScript strictly - no `any` types
 - Focus on user experience for non-technical users
 - Ensure all operations work client-side
+- Avoid code duplication
 
 ## Key Features
 

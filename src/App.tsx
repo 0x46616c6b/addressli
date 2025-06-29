@@ -9,7 +9,7 @@ import { parseCSVFile, validateColumnSelection } from "./utils/csvParser";
 import { buildAddressString, geocodeAddressWithRateLimit } from "./utils/geocoding";
 import { convertToGeoJSON } from "./utils/jsonExport";
 
-type AppStep = "upload" | "preview" | "mapping" | "processing" | "results";
+type AppStep = "upload" | "preview" | "processing" | "results";
 
 interface AppState {
   currentStep: AppStep;
@@ -186,38 +186,25 @@ function App(): React.JSX.Element {
 
       case "preview":
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Data Preview</h2>
-              <p className="text-gray-600">Review your data and then select the address columns</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Data & Map Columns</h2>
+              <p className="text-gray-600">Review your data and select columns for address data and additional metadata</p>
             </div>
-            <DataPreview data={state.csvData} headers={state.headers} />
-            <div className="flex justify-center">
-              <button
-                onClick={() => setCurrentStep("mapping")}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                Continue to Column Selection
-              </button>
-            </div>
-          </div>
-        );
 
-      case "mapping":
-        return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Map Columns</h2>
-              <p className="text-gray-600">Select columns for address data and additional metadata</p>
+            {/* Data Preview Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">Data Preview</h3>
+              <DataPreview data={state.csvData} headers={state.headers} />
             </div>
-            <ColumnSelector headers={state.headers} onMappingChange={handleMappingChange} initialMapping={state.columnMapping} />
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => setCurrentStep("preview")}
-                className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-              >
-                Back
-              </button>
+
+            {/* Column Mapping Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">Column Mapping</h3>
+              <ColumnSelector headers={state.headers} onMappingChange={handleMappingChange} initialMapping={state.columnMapping} />
+            </div>
+
+            <div className="flex justify-center">
               <button
                 onClick={handleStartProcessing}
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -267,17 +254,16 @@ function App(): React.JSX.Element {
         {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-center space-x-4">
-            {(["upload", "preview", "mapping", "processing", "results"] as const).map((step, index) => {
+            {(["upload", "preview", "processing", "results"] as const).map((step, index) => {
               const stepLabels = {
                 upload: "Upload",
-                preview: "Preview",
-                mapping: "Mapping",
+                preview: "Preview & Map",
                 processing: "Processing",
                 results: "Results",
               };
 
               const isActive = state.currentStep === step;
-              const isCompleted = ["upload", "preview", "mapping", "processing", "results"].indexOf(state.currentStep) > index;
+              const isCompleted = ["upload", "preview", "processing", "results"].indexOf(state.currentStep) > index;
 
               return (
                 <div key={step} className="flex items-center">
@@ -290,7 +276,7 @@ function App(): React.JSX.Element {
                     {isCompleted ? "✓" : index + 1}
                   </div>
                   <span className={`ml-2 text-sm ${isActive ? "text-blue-600 font-medium" : "text-gray-500"}`}>{stepLabels[step]}</span>
-                  {index < 4 && <div className={`ml-4 w-8 h-0.5 ${isCompleted ? "bg-green-600" : "bg-gray-300"}`} />}
+                  {index < 3 && <div className={`ml-4 w-8 h-0.5 ${isCompleted ? "bg-green-600" : "bg-gray-300"}`} />}
                 </div>
               );
             })}

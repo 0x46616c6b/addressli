@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import type { CSVRow } from "../types";
+import type { CSVRow, ProcessedAddress } from "../types";
 
 export interface CSVParseResult {
   data: CSVRow[];
@@ -151,4 +151,61 @@ export function autoDetectColumns(headers: string[]): { zipCode?: string; street
     street: findBestMatch(streetPatterns),
     city: findBestMatch(cityPatterns),
   };
+}
+
+/**
+ * Converts failed addresses to CSV format and downloads it
+ * @param failedAddresses Array of failed processed addresses
+ * @param originalFilename Original CSV filename for generating the new filename
+ */
+export function downloadFailedAddressesCSV(failedAddresses: ProcessedAddress[], originalFilename: string): void {
+  if (failedAddresses.length === 0) {
+    return;
+  }
+
+  // Get all unique column names from the original data, preserving order of first appearance
+  const allColumns: string[] = [];
+  const seenColumns = new Set<string>();
+
+  failedAddresses.forEach((addr) => {
+    Object.keys(addr.originalData).forEach((key) => {
+      if (!seenColumns.has(key)) {
+        allColumns.push(key);
+        seenColumns.add(key);
+      }
+    });
+  });
+
+  const headers = allColumns;
+
+  // Prepare data without error messages - just the original data
+  const csvData = failedAddresses.map((addr) => {
+    return { ...addr.originalData };
+  });
+
+  // Convert to CSV string
+  const csvString = Papa.unparse({
+    fields: headers,
+    data: csvData,
+  });
+
+  // Generate filename
+  const baseName = originalFilename.replace(/\.[^/.]+$/, ""); // Remove extension
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+  const filename = `${baseName}_failed_addresses_${timestamp}.csv`;
+
+  // Download the file
+  const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.style.display = "none";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
 }

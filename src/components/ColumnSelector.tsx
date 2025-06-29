@@ -103,7 +103,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-3">Additional Data</h3>
+        <h4 className="text-base font-medium text-gray-900 mb-3">Additional Data</h4>
         <p className="text-sm text-gray-600 mb-4">Select additional columns to include in the output file.</p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">

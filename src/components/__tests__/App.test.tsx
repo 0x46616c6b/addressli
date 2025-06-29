@@ -12,7 +12,7 @@ describe("App Integration", () => {
     it("should render the upload step initially", () => {
       render(<App />);
 
-      expect(screen.getByText("adressli")).toBeInTheDocument();
+      expect(screen.getByText("addressli")).toBeInTheDocument();
       expect(screen.getByText("Transform your CSV address data into map-ready coordinates (GeoJSON).")).toBeInTheDocument();
       expect(screen.getByText("Upload CSV file")).toBeInTheDocument();
     });
@@ -62,13 +62,13 @@ describe("App Integration", () => {
       render(<App />);
 
       // The app should render without crashing
-      expect(screen.getByText("adressli")).toBeInTheDocument();
+      expect(screen.getByText("addressli")).toBeInTheDocument();
     });
 
     it("should show footer with attribution", () => {
       render(<App />);
 
-      expect(screen.getByText(/adressli uses OpenStreetMap Nominatim/)).toBeInTheDocument();
+      expect(screen.getByText(/addressli uses OpenStreetMap Nominatim/)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /Nominatim Usage Policy/ })).toBeInTheDocument();
     });
   });
@@ -86,7 +86,7 @@ describe("App Integration", () => {
       render(<App />);
 
       const mainHeading = screen.getByRole("heading", { level: 1 });
-      expect(mainHeading).toHaveTextContent("adressli");
+      expect(mainHeading).toHaveTextContent("addressli");
     });
   });
 

@@ -118,7 +118,7 @@ describe("geocoding utilities", () => {
         expect.stringContaining("https://nominatim.openstreetmap.org/search"),
         expect.objectContaining({
           headers: {
-            "User-Agent": "Adressli/1.0 (CSV Address Processor)",
+            "User-Agent": "addressli/1.0 (CSV Address Processor)",
           },
         })
       );

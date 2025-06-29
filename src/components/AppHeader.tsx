@@ -7,7 +7,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({
-  title = "adressli",
+  title = "addressli",
   subtitle = "Transform your CSV address data into map-ready coordinates (GeoJSON).",
   className = "",
 }: Readonly<AppHeaderProps>): React.JSX.Element {

@@ -255,7 +255,7 @@ function App(): React.JSX.Element {
         {/* Footer */}
         <footer className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-500">
           <p>
-            Adressli uses OpenStreetMap Nominatim for geocoding. Please respect the{" "}
+            adressli uses OpenStreetMap Nominatim for geocoding. Please respect the{" "}
             <a
               href="https://operations.osmfoundation.org/policies/nominatim/"
               target="_blank"

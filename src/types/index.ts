@@ -16,6 +16,7 @@ export interface GeocodeResult {
   address?: {
     postcode?: string;
     road?: string;
+    house_number?: string;
     city?: string;
     town?: string;
     village?: string;

@@ -26,14 +26,13 @@ export function convertToGeoJSON(processedAddresses: ProcessedAddress[], metadat
         }
       });
 
+      const address = addr.geocodeResult.address || {};
+      const displayName = `${address.road || ""} ${address.house_number || ""}, ${address.postcode || ""} ${address.city || ""}`.trim();
+
       // Generate uMap-compatible title and description
-      const uMapData = generateUMapProperties(addr.originalData, metadataColumns, addr.geocodeResult.display_name);
+      const uMapData = generateUMapProperties(addr.originalData, metadataColumns, displayName);
       properties.name = uMapData.name;
       properties.description = uMapData.description;
-
-      // Add geocoding information
-      properties.display_name = addr.geocodeResult.display_name || null;
-      properties.geocode_success = true;
 
       return {
         type: "Feature",

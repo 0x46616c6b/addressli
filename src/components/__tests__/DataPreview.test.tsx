@@ -104,4 +104,48 @@ describe("DataPreview Component", () => {
     const rows = screen.getAllByRole("row");
     expect(rows).toHaveLength(4); // 1 header + 3 data rows
   });
+
+  describe("Accessibility", () => {
+    it("should have proper heading structure with ID", () => {
+      render(<DataPreview data={mockData} headers={mockHeaders} />);
+
+      const heading = screen.getByRole("heading", { name: "Data Preview" });
+      expect(heading.tagName).toBe("H3");
+      expect(heading).toHaveAttribute("id", "data-preview-heading");
+    });
+
+    it("should have accessible table structure", () => {
+      render(<DataPreview data={mockData} headers={mockHeaders} />);
+
+      const table = screen.getByRole("table");
+      expect(table).toBeInTheDocument();
+
+      // Check that headers have proper scope
+      const columnHeaders = screen.getAllByRole("columnheader");
+      columnHeaders.forEach((header) => {
+        expect(header).toHaveAttribute("scope", "col");
+      });
+    });
+
+    it("should display row information below the table", () => {
+      const largeData: CSVRow[] = Array.from({ length: 10 }, (_, i) => ({
+        name: `Person ${i + 1}`,
+        city: `City ${i + 1}`,
+      }));
+
+      render(<DataPreview data={largeData} headers={["name", "city"]} maxRows={3} />);
+
+      // Check that the additional rows message is displayed
+      expect(screen.getByText(/more rows available/)).toBeInTheDocument();
+
+      // Check that there's a section below the table with row information
+      const rowInfoDiv = document.querySelector(".mt-3.text-sm.text-gray-500.text-center");
+      expect(rowInfoDiv).toBeInTheDocument();
+
+      // Verify it contains expected information
+      expect(rowInfoDiv?.textContent).toContain("Showing");
+      expect(rowInfoDiv?.textContent).toContain("rows");
+      expect(rowInfoDiv?.textContent).toContain("more rows available");
+    });
+  });
 });

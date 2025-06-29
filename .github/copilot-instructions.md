@@ -30,6 +30,40 @@ This is a React TypeScript application built with Vite for processing CSV files 
 - Ensure all operations work client-side
 - Avoid code duplication
 
+## Code Complexity Rules
+
+- **Function Length**: Keep functions under 30 lines when possible
+- **Single Responsibility**: Each function should have one clear purpose
+- **Extract Complex Logic**: Break down complex operations into smaller, testable utility functions
+- **Nested Logic**: Avoid deeply nested conditionals (max 3 levels)
+- **Async Processing**: Extract long async operations into separate utility functions
+- **State Management**: Keep component state updates simple and predictable
+- **Error Handling**: Centralize error handling patterns
+- **Refactor Threshold**: If a function exceeds 40 lines or has multiple responsibilities, refactor it
+- **Performance**: Avoid O(n²) operations in loops - use incremental counters instead of repeated array filtering
+- **Re-render Optimization**: Batch state updates to minimize component re-renders, especially in loops processing large datasets
+
+Example: Instead of one large processing function, create:
+
+```typescript
+// Good: Extracted utilities with incremental counters and batched updates
+const processedAddress = await processAddressRow(row, mapping);
+if (isProcessedAddressSuccessful(processedAddress)) {
+  successfulCount++;
+} else {
+  failedCount++;
+}
+
+// Batch state updates every 10 iterations to reduce re-renders
+if ((i + 1) % 10 === 0 || i === data.length - 1) {
+  const progress = calculateProgress(total, processed, successfulCount, failedCount);
+  setState(prev => ({ ...prev, progress, processedData: [...processedData] }));
+}
+
+// Avoid: Updating state on every iteration
+setState(prev => ({ ...prev, progress: calculateProgress(...) })); // Causes excessive re-renders
+```
+
 ## Key Features
 
 1. CSV file upload with validation

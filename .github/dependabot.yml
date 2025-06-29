@@ -1,0 +1,22 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    groups:
+      dependencies:
+        patterns:
+          - "@types/papaparse"
+          - "papaparse"
+          - "react*"
+      devDependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/papaparse"
+          - "papaparse"
+          - "react*"

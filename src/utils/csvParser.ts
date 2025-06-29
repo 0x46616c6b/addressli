@@ -163,21 +163,24 @@ export function downloadFailedAddressesCSV(failedAddresses: ProcessedAddress[], 
     return;
   }
 
-  // Get all unique column names from the original data
-  const allColumns = new Set<string>();
+  // Get all unique column names from the original data, preserving order of first appearance
+  const allColumns: string[] = [];
+  const seenColumns = new Set<string>();
+
   failedAddresses.forEach((addr) => {
-    Object.keys(addr.originalData).forEach((key) => allColumns.add(key));
+    Object.keys(addr.originalData).forEach((key) => {
+      if (!seenColumns.has(key)) {
+        allColumns.push(key);
+        seenColumns.add(key);
+      }
+    });
   });
 
-  // Add error column to the set before sorting
-  allColumns.add("error_message");
-  const headers = Array.from(allColumns).sort((a, b) => a.localeCompare(b));
+  const headers = allColumns;
 
-  // Prepare data with error messages
+  // Prepare data without error messages - just the original data
   const csvData = failedAddresses.map((addr) => {
-    const row: Record<string, string> = { ...addr.originalData };
-    row.error_message = addr.error || "Unknown error";
-    return row;
+    return { ...addr.originalData };
   });
 
   // Convert to CSV string

@@ -313,7 +313,7 @@ describe("csvParser utilities", () => {
       expect(mockBlob).not.toHaveBeenCalled();
     });
 
-    it("should create CSV with error messages for failed addresses", () => {
+    it("should create CSV with original data only (no error messages)", () => {
       const failedAddresses: ProcessedAddress[] = [
         {
           originalData: { street: "Musterstraße 123", city: "Berlin", plz: "10115" },
@@ -327,20 +327,25 @@ describe("csvParser utilities", () => {
 
       downloadFailedAddressesCSV(failedAddresses, "addresses.csv");
 
-      // Verify Blob was created with correct CSV content
-      expect(mockBlob).toHaveBeenCalledWith([expect.stringContaining("city,error_message,plz,street")], { type: "text/csv;charset=utf-8;" });
+      // Verify Blob was created with correct CSV content (original column order)
+      expect(mockBlob).toHaveBeenCalledWith([expect.stringContaining("street,city,plz")], { type: "text/csv;charset=utf-8;" });
 
       const blobCall = mockBlob.mock.calls[0];
       const csvContent = blobCall[0][0] as string;
 
-      // Verify CSV content includes original data and error messages
+      // Verify CSV content includes original data but NOT error messages
       expect(csvContent).toContain("Musterstraße 123");
-      expect(csvContent).toContain("Address not found");
       expect(csvContent).toContain("Invalid Street");
-      expect(csvContent).toContain("Geocoding service unavailable");
+      expect(csvContent).toContain("Berlin");
+      expect(csvContent).toContain("Munich");
+
+      // Should NOT contain error messages
+      expect(csvContent).not.toContain("Address not found");
+      expect(csvContent).not.toContain("Geocoding service unavailable");
+      expect(csvContent).not.toContain("error_message");
     });
 
-    it("should handle addresses with different column structures", () => {
+    it("should handle addresses with different column structures and preserve order", () => {
       const failedAddresses: ProcessedAddress[] = [
         {
           originalData: { name: "Company A", address: "Street 1", zip: "12345" },
@@ -357,7 +362,7 @@ describe("csvParser utilities", () => {
       expect(mockBlob).toHaveBeenCalled();
       const csvContent = mockBlob.mock.calls[0][0][0] as string;
 
-      // Should include all unique columns from both addresses
+      // Should include all unique columns from both addresses in order of first appearance
       expect(csvContent).toContain("name");
       expect(csvContent).toContain("address");
       expect(csvContent).toContain("zip");
@@ -365,10 +370,17 @@ describe("csvParser utilities", () => {
       expect(csvContent).toContain("street");
       expect(csvContent).toContain("postcode");
       expect(csvContent).toContain("phone");
-      expect(csvContent).toContain("error_message");
+
+      // Should NOT contain error_message
+      expect(csvContent).not.toContain("error_message");
+
+      // Verify the column order matches first appearance: name, address, zip, company, street, postcode, phone
+      const lines = csvContent.split("\n");
+      const headerLine = lines[0].trim(); // Trim to remove any trailing whitespace
+      expect(headerLine).toBe("name,address,zip,company,street,postcode,phone");
     });
 
-    it("should use 'Unknown error' for addresses without error messages", () => {
+    it("should handle addresses without error messages gracefully", () => {
       const failedAddresses: ProcessedAddress[] = [
         {
           originalData: { street: "Test Street", city: "Test City" },
@@ -383,7 +395,16 @@ describe("csvParser utilities", () => {
       downloadFailedAddressesCSV(failedAddresses, "test.csv");
 
       const csvContent = mockBlob.mock.calls[0][0][0] as string;
-      expect(csvContent).toContain("Unknown error");
+
+      // Should contain original data
+      expect(csvContent).toContain("Test Street");
+      expect(csvContent).toContain("Test City");
+      expect(csvContent).toContain("Another Street");
+      expect(csvContent).toContain("Another City");
+
+      // Should NOT contain any error-related content
+      expect(csvContent).not.toContain("Unknown error");
+      expect(csvContent).not.toContain("error_message");
     });
 
     it("should generate correct filename with timestamp", () => {
@@ -448,8 +469,7 @@ describe("csvParser utilities", () => {
       expect(mockRemoveChild).toHaveBeenCalledWith(anchorElement);
       expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
     });
-
-    it("should preserve all original data fields in the CSV", () => {
+    it("should preserve all original data fields in the CSV without error messages", () => {
       const failedAddresses: ProcessedAddress[] = [
         {
           originalData: {
@@ -481,15 +501,17 @@ describe("csvParser utilities", () => {
       expect(csvContent).toContain("phone");
       expect(csvContent).toContain("email");
       expect(csvContent).toContain("notes");
-      expect(csvContent).toContain("error_message");
 
       // Verify data values are included
       expect(csvContent).toContain("123");
       expect(csvContent).toContain("Test Company");
       expect(csvContent).toContain("John Doe");
       expect(csvContent).toContain("Musterstraße 123");
-      expect(csvContent).toContain("Complex address geocoding failed");
       expect(csvContent).toContain("äöüß");
+
+      // Should NOT contain error information
+      expect(csvContent).not.toContain("error_message");
+      expect(csvContent).not.toContain("Complex address geocoding failed");
     });
 
     it("should function as a utility without throwing errors", () => {
@@ -497,15 +519,15 @@ describe("csvParser utilities", () => {
       expect(downloadFailedAddressesCSV.length).toBe(2); // Should take 2 parameters
     });
 
-    it("should sort columns alphabetically using localeCompare for reliable ordering", () => {
+    it("should preserve original column order as they appear in the data", () => {
       const failedAddresses: ProcessedAddress[] = [
         {
           originalData: {
-            Ürsprung: "test", // German umlaut
-            zuletzt: "last",
-            Adresse: "middle",
-            ämlich: "special char",
-            Büro: "office",
+            zuletzt: "last", // This should come first
+            Adresse: "middle", // This should come second
+            Ürsprung: "test", // This should come third
+            ämlich: "special char", // This should come fourth
+            Büro: "office", // This should come last
           },
           error: "Test error",
         },
@@ -515,21 +537,20 @@ describe("csvParser utilities", () => {
 
       const csvContent = mockBlob.mock.calls[0][0][0] as string;
       const lines = csvContent.split("\n");
-      const headerLine = lines[0];
+      const headerLine = lines[0].trim(); // Trim to remove any trailing whitespace
 
-      // Should be alphabetically sorted with locale-aware comparison
-      // Let's verify the order is correct by checking individual columns
+      // Should preserve the original order of columns as they appear in the object
+      expect(headerLine).toBe("zuletzt,Adresse,Ürsprung,ämlich,Büro");
+
+      // Verify all columns are present
       expect(headerLine).toContain("Adresse");
       expect(headerLine).toContain("ämlich");
       expect(headerLine).toContain("Büro");
       expect(headerLine).toContain("Ürsprung");
       expect(headerLine).toContain("zuletzt");
-      expect(headerLine).toContain("error_message");
 
-      // Verify the columns are in alphabetical order
-      const headers = headerLine.split(",");
-      const sortedHeaders = [...headers].sort((a, b) => a.localeCompare(b));
-      expect(headers).toEqual(sortedHeaders);
+      // Should NOT contain error_message
+      expect(headerLine).not.toContain("error_message");
     });
   });
 });

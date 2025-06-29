@@ -9,3 +9,9 @@ expect.extend(matchers);
 afterEach(() => {
   cleanup();
 });
+
+// Type declarations for the matchers
+declare module "vitest" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Assertion<T = any> extends matchers.TestingLibraryMatchers<T, void> {}
+}

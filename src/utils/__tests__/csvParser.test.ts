@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CSVRow } from "../../types";
-import { autoDetectColumns, getCSVPreview, isValidCSVFile, validateColumnSelection } from "../csvParser";
+import { autoDetectColumns, getCSVPreview, isValidCSVFile, validateColumnSelection, downloadFailedAddressesCSV } from "../csvParser";
 
 describe("csvParser utilities", () => {
   describe("isValidCSVFile", () => {
@@ -235,6 +235,19 @@ describe("csvParser utilities", () => {
       expect(result.zipCode).toBe("Post Code");
       expect(result.street).toBe("Address Line");
       expect(result.city).toBe("Locality");
+    });
+  });
+
+  describe("downloadFailedAddressesCSV", () => {
+    // Note: This is an integration test that requires DOM APIs
+    // In a real test environment, we would mock the DOM APIs properly
+    it("should exist and be callable", () => {
+      expect(typeof downloadFailedAddressesCSV).toBe("function");
+    });
+
+    it("should handle empty failed addresses array", () => {
+      // This should not throw an error
+      expect(() => downloadFailedAddressesCSV([], "test.csv")).not.toThrow();
     });
   });
 });

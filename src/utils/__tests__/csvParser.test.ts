@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import type { CSVRow } from "../../types";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import type { CSVRow, ProcessedAddress } from "../../types";
 import { autoDetectColumns, getCSVPreview, isValidCSVFile, validateColumnSelection, downloadFailedAddressesCSV } from "../csvParser";
 
 describe("csvParser utilities", () => {
@@ -239,15 +239,265 @@ describe("csvParser utilities", () => {
   });
 
   describe("downloadFailedAddressesCSV", () => {
-    // Note: This is an integration test that requires DOM APIs
-    // In a real test environment, we would mock the DOM APIs properly
-    it("should exist and be callable", () => {
-      expect(typeof downloadFailedAddressesCSV).toBe("function");
+    // Mock DOM APIs
+    let mockCreateElement: ReturnType<typeof vi.fn>;
+    let mockCreateObjectURL: ReturnType<typeof vi.fn>;
+    let mockRevokeObjectURL: ReturnType<typeof vi.fn>;
+    let mockAppendChild: ReturnType<typeof vi.fn>;
+    let mockRemoveChild: ReturnType<typeof vi.fn>;
+    let mockClick: ReturnType<typeof vi.fn>;
+    let mockBlob: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      // Mock document.createElement
+      mockCreateElement = vi.fn();
+      mockClick = vi.fn();
+      mockAppendChild = vi.fn();
+      mockRemoveChild = vi.fn();
+
+      const mockAnchorElement = {
+        href: "",
+        download: "",
+        style: { display: "" },
+        click: mockClick,
+      };
+
+      mockCreateElement.mockReturnValue(mockAnchorElement);
+      
+      // Mock document methods
+      Object.defineProperty(document, 'createElement', {
+        value: mockCreateElement,
+        writable: true
+      });
+      Object.defineProperty(document.body, 'appendChild', {
+        value: mockAppendChild,
+        writable: true
+      });
+      Object.defineProperty(document.body, 'removeChild', {
+        value: mockRemoveChild,
+        writable: true
+      });
+
+      // Mock URL APIs
+      mockCreateObjectURL = vi.fn().mockReturnValue("blob:mock-url");
+      mockRevokeObjectURL = vi.fn();
+      
+      Object.defineProperty(global, 'URL', {
+        value: {
+          createObjectURL: mockCreateObjectURL,
+          revokeObjectURL: mockRevokeObjectURL,
+        },
+        writable: true
+      });
+
+      // Mock Blob constructor
+      mockBlob = vi.fn().mockImplementation((content: BlobPart[], options?: BlobPropertyBag) => ({
+        content,
+        options,
+        type: options?.type || 'text/plain',
+      }));
+      
+      global.Blob = mockBlob;
     });
 
-    it("should handle empty failed addresses array", () => {
-      // This should not throw an error
-      expect(() => downloadFailedAddressesCSV([], "test.csv")).not.toThrow();
+    afterEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("should handle empty failed addresses array gracefully", () => {
+      downloadFailedAddressesCSV([], "test.csv");
+      
+      // Should not create any DOM elements or blobs when array is empty
+      expect(mockCreateElement).not.toHaveBeenCalled();
+      expect(mockCreateObjectURL).not.toHaveBeenCalled();
+      expect(mockBlob).not.toHaveBeenCalled();
+    });
+
+    it("should create CSV with error messages for failed addresses", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: { street: "Musterstraße 123", city: "Berlin", plz: "10115" },
+          error: "Address not found",
+        },
+        {
+          originalData: { street: "Invalid Street", city: "Munich", plz: "80331" },
+          error: "Geocoding service unavailable",
+        },
+      ];
+
+      downloadFailedAddressesCSV(failedAddresses, "addresses.csv");
+
+      // Verify Blob was created with correct CSV content
+      expect(mockBlob).toHaveBeenCalledWith(
+        [expect.stringContaining("street,city,plz,error_message")],
+        { type: "text/csv;charset=utf-8;" }
+      );
+
+      const blobCall = mockBlob.mock.calls[0];
+      const csvContent = blobCall[0][0] as string;
+      
+      // Verify CSV content includes original data and error messages
+      expect(csvContent).toContain("Musterstraße 123");
+      expect(csvContent).toContain("Address not found");
+      expect(csvContent).toContain("Invalid Street");
+      expect(csvContent).toContain("Geocoding service unavailable");
+    });
+
+    it("should handle addresses with different column structures", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: { name: "Company A", address: "Street 1", zip: "12345" },
+          error: "Error 1",
+        },
+        {
+          originalData: { company: "Company B", street: "Street 2", postcode: "67890", phone: "123456789" },
+          error: "Error 2",
+        },
+      ];
+
+      downloadFailedAddressesCSV(failedAddresses, "test.csv");
+
+      expect(mockBlob).toHaveBeenCalled();
+      const csvContent = mockBlob.mock.calls[0][0][0] as string;
+      
+      // Should include all unique columns from both addresses
+      expect(csvContent).toContain("name");
+      expect(csvContent).toContain("address");
+      expect(csvContent).toContain("zip");
+      expect(csvContent).toContain("company");
+      expect(csvContent).toContain("street");
+      expect(csvContent).toContain("postcode");
+      expect(csvContent).toContain("phone");
+      expect(csvContent).toContain("error_message");
+    });
+
+    it("should use 'Unknown error' for addresses without error messages", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: { street: "Test Street", city: "Test City" },
+          // No error property
+        },
+        {
+          originalData: { street: "Another Street", city: "Another City" },
+          error: undefined, // Explicitly undefined
+        },
+      ];
+
+      downloadFailedAddressesCSV(failedAddresses, "test.csv");
+
+      const csvContent = mockBlob.mock.calls[0][0][0] as string;
+      expect(csvContent).toContain("Unknown error");
+    });
+
+    it("should generate correct filename with timestamp", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: { street: "Test Street" },
+          error: "Test error",
+        },
+      ];
+
+      // Mock Date.prototype.toISOString to return predictable timestamp
+      const mockDate = new Date("2023-06-15T10:30:45.123Z");
+      vi.spyOn(global, 'Date').mockImplementation(() => mockDate);
+      vi.spyOn(mockDate, 'toISOString').mockReturnValue("2023-06-15T10:30:45.123Z");
+
+      downloadFailedAddressesCSV(failedAddresses, "my_addresses.csv");
+
+      // Verify anchor element download attribute
+      expect(mockCreateElement).toHaveBeenCalledWith("a");
+      const anchorElement = mockCreateElement.mock.results[0].value;
+      expect(anchorElement.download).toBe("my_addresses_failed_addresses_2023-06-15T10-30-45.csv");
+    });
+
+    it("should handle filename without extension", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: { street: "Test Street" },
+          error: "Test error",
+        },
+      ];
+
+      const mockDate = new Date("2023-06-15T10:30:45.123Z");
+      vi.spyOn(global, 'Date').mockImplementation(() => mockDate);
+      vi.spyOn(mockDate, 'toISOString').mockReturnValue("2023-06-15T10:30:45.123Z");
+
+      downloadFailedAddressesCSV(failedAddresses, "filename_no_extension");
+
+      const anchorElement = mockCreateElement.mock.results[0].value;
+      expect(anchorElement.download).toBe("filename_no_extension_failed_addresses_2023-06-15T10-30-45.csv");
+    });
+
+    it("should create and trigger download link correctly", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: { street: "Test Street" },
+          error: "Test error",
+        },
+      ];
+
+      downloadFailedAddressesCSV(failedAddresses, "test.csv");
+
+      // Verify DOM operations
+      expect(mockCreateElement).toHaveBeenCalledWith("a");
+      expect(mockCreateObjectURL).toHaveBeenCalled();
+      
+      const anchorElement = mockCreateElement.mock.results[0].value;
+      expect(anchorElement.href).toBe("blob:mock-url");
+      expect(anchorElement.style.display).toBe("none");
+      
+      expect(mockAppendChild).toHaveBeenCalledWith(anchorElement);
+      expect(mockClick).toHaveBeenCalled();
+      expect(mockRemoveChild).toHaveBeenCalledWith(anchorElement);
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
+    });
+
+    it("should preserve all original data fields in the CSV", () => {
+      const failedAddresses: ProcessedAddress[] = [
+        {
+          originalData: {
+            id: "123",
+            company: "Test Company",
+            contact: "John Doe",
+            street: "Musterstraße 123",
+            city: "Berlin",
+            plz: "10115",
+            phone: "+49 30 12345678",
+            email: "test@example.com",
+            notes: "Some notes with special chars: äöüß",
+          },
+          error: "Complex address geocoding failed",
+        },
+      ];
+
+      downloadFailedAddressesCSV(failedAddresses, "complex_data.csv");
+
+      const csvContent = mockBlob.mock.calls[0][0][0] as string;
+      
+      // Verify all original fields are preserved
+      expect(csvContent).toContain("id");
+      expect(csvContent).toContain("company");
+      expect(csvContent).toContain("contact");
+      expect(csvContent).toContain("street");
+      expect(csvContent).toContain("city");
+      expect(csvContent).toContain("plz");
+      expect(csvContent).toContain("phone");
+      expect(csvContent).toContain("email");
+      expect(csvContent).toContain("notes");
+      expect(csvContent).toContain("error_message");
+      
+      // Verify data values are included
+      expect(csvContent).toContain("123");
+      expect(csvContent).toContain("Test Company");
+      expect(csvContent).toContain("John Doe");
+      expect(csvContent).toContain("Musterstraße 123");
+      expect(csvContent).toContain("Complex address geocoding failed");
+      expect(csvContent).toContain("äöüß");
+    });
+
+    it("should function as a utility without throwing errors", () => {
+      expect(typeof downloadFailedAddressesCSV).toBe("function");
+      expect(downloadFailedAddressesCSV.length).toBe(2); // Should take 2 parameters
     });
   });
 });

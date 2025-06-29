@@ -68,7 +68,7 @@ describe("App Integration", () => {
     it("should show footer with attribution", () => {
       render(<App />);
 
-      expect(screen.getByText(/Adressli uses OpenStreetMap Nominatim/)).toBeInTheDocument();
+      expect(screen.getByText(/adressli uses OpenStreetMap Nominatim/)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /Nominatim Usage Policy/ })).toBeInTheDocument();
     });
   });

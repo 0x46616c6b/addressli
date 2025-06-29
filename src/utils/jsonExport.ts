@@ -1,6 +1,52 @@
 import type { LeafletFeature, LeafletFeatureCollection, ProcessedAddress } from "../types";
 
 /**
+ * Constructs a clean display name from address components
+ * @param address Address object from geocoding result
+ * @returns Formatted display name string
+ */
+function constructDisplayName(address: Record<string, string | undefined>): string {
+  const addressParts: string[] = [];
+
+  // Build street address (road + house number)
+  const streetParts: string[] = [];
+  if (address.road?.trim()) {
+    streetParts.push(address.road.trim());
+  }
+  if (address.house_number?.trim()) {
+    streetParts.push(address.house_number.trim());
+  }
+
+  if (streetParts.length > 0) {
+    addressParts.push(streetParts.join(" "));
+  }
+
+  // Build city part (postcode + city)
+  const cityParts: string[] = [];
+  if (address.postcode?.trim()) {
+    cityParts.push(address.postcode.trim());
+  }
+  if (address.city?.trim()) {
+    cityParts.push(address.city.trim());
+  }
+
+  if (cityParts.length > 0) {
+    addressParts.push(cityParts.join(" "));
+  }
+
+  // Fallback to any available address component
+  if (addressParts.length === 0) {
+    const fallbackComponents = [address.village, address.town, address.suburb, address.state, address.country].filter((component) => component?.trim());
+
+    if (fallbackComponents.length > 0) {
+      addressParts.push(fallbackComponents[0]!.trim());
+    }
+  }
+
+  return addressParts.join(", ");
+}
+
+/**
  * Converts processed addresses to GeoJSON format compatible with uMap and Leaflet
  * @param processedAddresses Array of processed addresses
  * @param metadataColumns Columns to include as properties
@@ -26,14 +72,13 @@ export function convertToGeoJSON(processedAddresses: ProcessedAddress[], metadat
         }
       });
 
+      const address = addr.geocodeResult.address || {};
+      const displayName = constructDisplayName(address);
+
       // Generate uMap-compatible title and description
-      const uMapData = generateUMapProperties(addr.originalData, metadataColumns, addr.geocodeResult.display_name);
+      const uMapData = generateUMapProperties(addr.originalData, metadataColumns, displayName);
       properties.name = uMapData.name;
       properties.description = uMapData.description;
-
-      // Add geocoding information
-      properties.display_name = addr.geocodeResult.display_name || null;
-      properties.geocode_success = true;
 
       return {
         type: "Feature",

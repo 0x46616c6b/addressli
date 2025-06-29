@@ -72,7 +72,10 @@ describe("jsonExport utilities", () => {
       const result = convertToGeoJSON([successfulAddress], []);
 
       const feature = result.features[0];
-      expect(feature.properties.name).toBeUndefined();
+      // Even with empty metadata columns, the original data has 'name' which should be detected
+      expect(feature.properties.name).toBe("John"); // Found from original data
+      // Since no metadata but display_name != name, address should be added to description
+      expect(feature.properties.description).toBe("<strong>Address:</strong> Berlin, Deutschland");
       expect(feature.properties.display_name).toBe("Berlin, Deutschland");
       expect(feature.properties.geocode_success).toBe(true);
     });
@@ -113,6 +116,84 @@ describe("jsonExport utilities", () => {
 
       expect(result.type).toBe("FeatureCollection");
       expect(result.features).toHaveLength(0);
+    });
+
+    // uMap-specific tests
+    it("should generate uMap-compatible name and description", () => {
+      const result = convertToGeoJSON([successfulAddress], ["name", "email"]);
+      const feature = result.features[0];
+
+      expect(feature.properties.name).toBe("John"); // uMap title
+      expect(feature.properties.description).toContain("<strong>name:</strong> John");
+      expect(feature.properties.description).toContain("<strong>email:</strong> john@example.com");
+    });
+
+    it("should use company name for uMap title when available", () => {
+      const companyAddress: ProcessedAddress = {
+        originalData: { firma: "Tech Corp", street: "Main St 1", city: "Berlin", phone: "123-456" },
+        geocodeResult: mockGeocodeResult,
+        coordinates: [52.52, 13.405],
+      };
+
+      const result = convertToGeoJSON([companyAddress], ["firma", "phone"]);
+      const feature = result.features[0];
+
+      expect(feature.properties.name).toBe("Tech Corp");
+      expect(feature.properties.description).toContain("<strong>firma:</strong> Tech Corp");
+      expect(feature.properties.description).toContain("<strong>phone:</strong> 123-456");
+    });
+
+    it("should use display_name as fallback for uMap title", () => {
+      const addressWithoutName: ProcessedAddress = {
+        originalData: { street: "Main St 1", city: "Berlin", phone: "123-456" },
+        geocodeResult: mockGeocodeResult,
+        coordinates: [52.52, 13.405],
+      };
+
+      const result = convertToGeoJSON([addressWithoutName], ["phone"]);
+      const feature = result.features[0];
+
+      expect(feature.properties.name).toBe("Berlin, Deutschland");
+      expect(feature.properties.description).toContain("<strong>phone:</strong> 123-456");
+      // Since display_name is used as name and equals name, description should just have the metadata
+      expect(feature.properties.description).toBe("<strong>phone:</strong> 123-456");
+    });
+
+    it("should handle case-insensitive company name detection", () => {
+      const companyAddress: ProcessedAddress = {
+        originalData: { COMPANY: "Big Corp", address: "Business St 1", city: "Munich" },
+        geocodeResult: mockGeocodeResult,
+        coordinates: [52.52, 13.405],
+      };
+
+      const result = convertToGeoJSON([companyAddress], ["COMPANY"]);
+      const feature = result.features[0];
+
+      expect(feature.properties.name).toBe("Big Corp");
+      expect(feature.properties.description).toContain("<strong>COMPANY:</strong> Big Corp");
+    });
+
+    it("should generate description with HTML formatting for uMap", () => {
+      const result = convertToGeoJSON([successfulAddress], ["name", "email", "city"]);
+      const feature = result.features[0];
+
+      expect(feature.properties.description).toContain("<strong>name:</strong> John<br>");
+      expect(feature.properties.description).toContain("<strong>email:</strong> john@example.com<br>");
+      expect(feature.properties.description).toContain("<strong>city:</strong> Berlin");
+    });
+
+    it("should fallback to 'Address' when no suitable name found", () => {
+      const addressWithoutIdentifiers: ProcessedAddress = {
+        originalData: { street: "Main St 1", zipcode: "12345" },
+        geocodeResult: { ...mockGeocodeResult, display_name: "" },
+        coordinates: [52.52, 13.405],
+      };
+
+      const result = convertToGeoJSON([addressWithoutIdentifiers], ["zipcode"]);
+      const feature = result.features[0];
+
+      expect(feature.properties.name).toBe("12345"); // Uses first metadata column as fallback
+      expect(feature.properties.description).toContain("<strong>zipcode:</strong> 12345");
     });
   });
 

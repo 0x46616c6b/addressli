@@ -1,7 +1,7 @@
 import type { LeafletFeature, LeafletFeatureCollection, ProcessedAddress } from "../types";
 
 /**
- * Converts processed addresses to GeoJSON format for Leaflet
+ * Converts processed addresses to GeoJSON format compatible with uMap and Leaflet
  * @param processedAddresses Array of processed addresses
  * @param metadataColumns Columns to include as properties
  * @returns LeafletFeatureCollection
@@ -26,6 +26,11 @@ export function convertToGeoJSON(processedAddresses: ProcessedAddress[], metadat
         }
       });
 
+      // Generate uMap-compatible title and description
+      const uMapData = generateUMapProperties(addr.originalData, metadataColumns, addr.geocodeResult.display_name);
+      properties.name = uMapData.name;
+      properties.description = uMapData.description;
+
       // Add geocoding information
       properties.display_name = addr.geocodeResult.display_name || null;
       properties.geocode_success = true;
@@ -44,6 +49,80 @@ export function convertToGeoJSON(processedAddresses: ProcessedAddress[], metadat
     type: "FeatureCollection",
     features,
   };
+}
+
+/**
+ * Generates uMap-compatible name and description from address data
+ * @param originalData The original CSV row data
+ * @param metadataColumns Selected metadata columns
+ * @param displayName Geocoded display name
+ * @returns Object with name and description for uMap
+ */
+function generateUMapProperties(originalData: Record<string, string>, metadataColumns: string[], displayName?: string): { name: string; description: string } {
+  // Try to find a suitable name from common name/company columns
+  const nameColumns = ["name", "firma", "company", "unternehmen", "organisation", "organization", "title", "bezeichnung"];
+  let name = "";
+
+  // Look for a name column (case-insensitive)
+  for (const col of nameColumns) {
+    const foundCol = Object.keys(originalData).find((key) => key.toLowerCase().includes(col));
+    if (foundCol && originalData[foundCol]?.trim()) {
+      name = originalData[foundCol].trim();
+      break;
+    }
+  }
+
+  // If no name found, use the geocoded address as name
+  if (!name && displayName) {
+    name = displayName;
+  }
+
+  // If still no name, use the first non-empty metadata column
+  if (!name && metadataColumns.length > 0) {
+    for (const col of metadataColumns) {
+      if (originalData[col]?.trim()) {
+        name = originalData[col].trim();
+        break;
+      }
+    }
+  }
+
+  // Fallback name
+  if (!name) {
+    name = "Address";
+  }
+
+  // Generate description from metadata
+  let description = "";
+  if (metadataColumns.length > 0) {
+    const descriptionParts: string[] = [];
+
+    metadataColumns.forEach((column) => {
+      const value = originalData[column];
+      if (value && value.trim()) {
+        descriptionParts.push(`<strong>${column}:</strong> ${value.trim()}`);
+      }
+    });
+
+    if (descriptionParts.length > 0) {
+      description = descriptionParts.join("<br>");
+    }
+  }
+
+  // Add geocoded address if available and not already used as name
+  if (displayName && displayName !== name) {
+    if (description) {
+      description += "<br><br>";
+    }
+    description += `<strong>Address:</strong> ${displayName}`;
+  }
+
+  // Fallback description
+  if (!description) {
+    description = name;
+  }
+
+  return { name, description };
 }
 
 /**

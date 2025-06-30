@@ -60,7 +60,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
  * @returns Formatted address string
  */
 export function buildAddressString(street?: string, zipCode?: string, city?: string, country?: string): string {
-  const parts = [street, zipCode, city, country].filter((part) => part && part.trim()).map((part) => part!.trim());
+  const parts = [street, zipCode, city, country].filter((part) => part?.trim()).map((part) => part!.trim());
   return parts.join(", ");
 }
 

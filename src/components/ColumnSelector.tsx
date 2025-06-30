@@ -8,11 +8,11 @@ interface ColumnSelectorProps {
 }
 
 export function ColumnSelector({ headers, onMappingChange, initialMapping }: ColumnSelectorProps): React.JSX.Element {
-  const [zipCode, setZipCode] = useState<string>(initialMapping?.zipCode || "");
-  const [street, setStreet] = useState<string>(initialMapping?.street || "");
-  const [city, setCity] = useState<string>(initialMapping?.city || "");
-  const [country, setCountry] = useState<string>(initialMapping?.country || "");
-  const [metadataColumns, setMetadataColumns] = useState<string[]>(initialMapping?.metadataColumns || []);
+  const [zipCode, setZipCode] = useState<string>(initialMapping?.zipCode ?? "");
+  const [street, setStreet] = useState<string>(initialMapping?.street ?? "");
+  const [city, setCity] = useState<string>(initialMapping?.city ?? "");
+  const [country, setCountry] = useState<string>(initialMapping?.country ?? "");
+  const [metadataColumns, setMetadataColumns] = useState<string[]>(initialMapping?.metadataColumns ?? []);
 
   useEffect(() => {
     onMappingChange({

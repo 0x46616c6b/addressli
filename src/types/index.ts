@@ -13,15 +13,23 @@ export interface GeocodeResult {
   lat: number;
   lon: number;
   display_name?: string;
-  address?: {
-    postcode?: string;
-    road?: string;
-    house_number?: string;
-    city?: string;
-    town?: string;
-    village?: string;
-    country?: string;
-  };
+  address?: AddressData;
+}
+
+export interface AddressData {
+  house_number?: string;
+  road?: string;
+  quarter?: string;
+  suburb?: string;
+  city_district?: string;
+  municipality?: string;
+  city?: string;
+  town?: string;
+  village?: string;
+  state?: string;
+  postcode?: string;
+  county?: string;
+  country?: string;
 }
 
 export interface ProcessedAddress {

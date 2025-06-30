@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GeocodeResult, ProcessedAddress } from "../../types";
-import { convertToGeoJSON, createProcessingSummary, downloadJSON, generateExportFilename } from "../jsonExport";
+import { convertToGeoJSON, createProcessingSummary, downloadJSON, extractCityFromAddress, generateExportFilename } from "../jsonExport";
 
 // Mock URL.createObjectURL and URL.revokeObjectURL
 global.URL.createObjectURL = vi.fn(() => "mock-blob-url");
@@ -374,6 +374,83 @@ describe("jsonExport utilities", () => {
       expect(mockLink.click).toHaveBeenCalled();
       expect(document.body.removeChild).toHaveBeenCalledWith(mockLink);
       expect(URL.revokeObjectURL).toHaveBeenCalledWith("mock-blob-url");
+    });
+  });
+
+  describe("extractCityFromAddress", () => {
+    it("should extract city with postcode when both are available", () => {
+      const address = {
+        postcode: "10115",
+        city: "Berlin",
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("10115 Berlin");
+    });
+
+    it("should prefer city over other components", () => {
+      const address = {
+        postcode: "10115",
+        city: "Berlin",
+        town: "Munich", // Should be ignored
+        village: "Frankfurt", // Should be ignored
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("10115 Berlin");
+    });
+
+    it("should fallback to town when city is not available", () => {
+      const address = {
+        postcode: "80331",
+        town: "Munich",
+        village: "Frankfurt", // Should be ignored
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("80331 Munich");
+    });
+
+    it("should fallback to village when city and town are not available", () => {
+      const address = {
+        postcode: "12345",
+        village: "Small Village",
+        municipality: "Big Municipality", // Should be ignored
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("12345 Small Village");
+    });
+
+    it("should work without postcode", () => {
+      const address = {
+        city: "Berlin",
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("Berlin");
+    });
+
+    it("should return only postcode when no city component is available", () => {
+      const address = {
+        postcode: "10115",
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("10115");
+    });
+
+    it("should return empty string when no relevant components are available", () => {
+      const address = {
+        road: "Musterstraße",
+        house_number: "123",
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("");
+    });
+
+    it("should handle empty or whitespace-only components", () => {
+      const address = {
+        postcode: "  ",
+        city: "",
+        town: "   Munich  ",
+      };
+      const result = extractCityFromAddress(address);
+      expect(result).toBe("Munich");
     });
   });
 });

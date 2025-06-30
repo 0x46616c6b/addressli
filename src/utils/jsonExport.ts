@@ -1,11 +1,37 @@
-import type { LeafletFeature, LeafletFeatureCollection, ProcessedAddress } from "../types";
+import type { AddressData, LeafletFeature, LeafletFeatureCollection, ProcessedAddress } from "../types";
+
+/**
+ * Extracts the best available city representation from Nominatim address data
+ * @param address Address object from geocoding result
+ * @returns Formatted city string with postcode if available
+ */
+export function extractCityFromAddress(address: AddressData): string {
+  const cityParts: string[] = [];
+
+  // Add postcode first if available
+  if (address.postcode?.trim()) {
+    cityParts.push(address.postcode.trim());
+  }
+
+  // Try to find the most specific city-like component in order of preference
+  const cityComponents = [address.city, address.town, address.village, address.municipality, address.county, address.suburb];
+
+  for (const component of cityComponents) {
+    if (component?.trim()) {
+      cityParts.push(component.trim());
+      break; // Use the first available component
+    }
+  }
+
+  return cityParts.join(" ");
+}
 
 /**
  * Constructs a clean display name from address components
  * @param address Address object from geocoding result
  * @returns Formatted display name string
  */
-function constructDisplayName(address: Record<string, string | undefined>): string {
+function constructDisplayName(address: AddressData): string {
   const addressParts: string[] = [];
 
   // Build street address (road + house number)
@@ -21,17 +47,10 @@ function constructDisplayName(address: Record<string, string | undefined>): stri
     addressParts.push(streetParts.join(" "));
   }
 
-  // Build city part (postcode + city)
-  const cityParts: string[] = [];
-  if (address.postcode?.trim()) {
-    cityParts.push(address.postcode.trim());
-  }
-  if (address.city?.trim()) {
-    cityParts.push(address.city.trim());
-  }
-
-  if (cityParts.length > 0) {
-    addressParts.push(cityParts.join(" "));
+  // Build city part using the extracted city function
+  const cityString = extractCityFromAddress(address);
+  if (cityString.trim()) {
+    addressParts.push(cityString);
   }
 
   // Fallback to any available address component

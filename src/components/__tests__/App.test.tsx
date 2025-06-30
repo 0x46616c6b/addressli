@@ -3,6 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../App";
 
+// Mock the usePageProtection hook
+vi.mock("../../hooks", () => ({
+  usePageProtection: vi.fn(),
+}));
+
 // Create simple integration test without heavy mocking
 describe("App Integration", () => {
   beforeEach(() => {

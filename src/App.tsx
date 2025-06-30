@@ -6,6 +6,7 @@ import { FileUpload } from "./components/FileUpload";
 import { MultiStepIndicator, type AppStep } from "./components/MultiStepIndicator";
 import { ProcessingProgressComponent } from "./components/ProcessingProgress";
 import { Results } from "./components/Results";
+import { usePageProtection } from "./hooks";
 import type { CSVRow, ColumnMapping, LeafletFeatureCollection, ProcessedAddress, ProcessingProgress } from "./types";
 import { calculateProgress, isProcessedAddressSuccessful, processAddressRow } from "./utils/addressProcessing";
 import { autoDetectColumns, parseCSVFile, validateColumnSelection } from "./utils/csvParser";
@@ -39,6 +40,12 @@ const initialState: AppState = {
 
 function App(): React.JSX.Element {
   const [state, setState] = useState<AppState>(initialState);
+
+  // Protect page from reload during processing and update title
+  usePageProtection({
+    isProcessing: state.isProcessing,
+    progress: state.progress,
+  });
 
   const setCurrentStep = useCallback((step: AppStep) => {
     setState((prev) => ({ ...prev, currentStep: step, errors: [] }));

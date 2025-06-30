@@ -6,6 +6,7 @@ export interface ColumnMapping {
   zipCode?: string;
   street?: string;
   city?: string;
+  country?: string;
   metadataColumns: string[];
 }
 

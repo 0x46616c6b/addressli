@@ -8,19 +8,21 @@ interface ColumnSelectorProps {
 }
 
 export function ColumnSelector({ headers, onMappingChange, initialMapping }: ColumnSelectorProps): React.JSX.Element {
-  const [zipCode, setZipCode] = useState<string>(initialMapping?.zipCode || "");
-  const [street, setStreet] = useState<string>(initialMapping?.street || "");
-  const [city, setCity] = useState<string>(initialMapping?.city || "");
-  const [metadataColumns, setMetadataColumns] = useState<string[]>(initialMapping?.metadataColumns || []);
+  const [zipCode, setZipCode] = useState<string>(initialMapping?.zipCode ?? "");
+  const [street, setStreet] = useState<string>(initialMapping?.street ?? "");
+  const [city, setCity] = useState<string>(initialMapping?.city ?? "");
+  const [country, setCountry] = useState<string>(initialMapping?.country ?? "");
+  const [metadataColumns, setMetadataColumns] = useState<string[]>(initialMapping?.metadataColumns ?? []);
 
   useEffect(() => {
     onMappingChange({
       zipCode: zipCode || undefined,
       street: street || undefined,
       city: city || undefined,
+      country: country || undefined,
       metadataColumns,
     });
-  }, [zipCode, street, city, metadataColumns, onMappingChange]);
+  }, [zipCode, street, city, country, metadataColumns, onMappingChange]);
 
   const handleMetadataToggle = (column: string) => {
     setMetadataColumns((prev) => {
@@ -33,7 +35,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
   };
 
   const isAddressColumn = (column: string): boolean => {
-    return column === zipCode || column === street || column === city;
+    return column === zipCode || column === street || column === city || column === country;
   };
 
   return (
@@ -44,7 +46,7 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
         </h3>
         <p className="text-sm text-gray-600 mb-6">Select the columns that contain your address data. At least one column must be selected.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label htmlFor="zipcode-select" className="block text-sm font-medium text-gray-700 mb-2">
               ZIP Code
@@ -91,6 +93,25 @@ export function ColumnSelector({ headers, onMappingChange, initialMapping }: Col
               id="city-select"
               value={city}
               onChange={(e) => setCity(e.target.value)}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">-- Select column --</option>
+              {headers.map((header) => (
+                <option key={header} value={header}>
+                  {header}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="country-select" className="block text-sm font-medium text-gray-700 mb-2">
+              Country
+            </label>
+            <select
+              id="country-select"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">-- Select column --</option>

@@ -34,6 +34,7 @@ describe("ColumnSelector Component", () => {
       expect(screen.getByLabelText("ZIP Code")).toBeInTheDocument();
       expect(screen.getByLabelText("Street")).toBeInTheDocument();
       expect(screen.getByLabelText("City")).toBeInTheDocument();
+      expect(screen.getByLabelText("Country")).toBeInTheDocument();
     });
 
     it("should have accessible checkboxes with descriptions", () => {
@@ -80,11 +81,13 @@ describe("ColumnSelector Component", () => {
       const zipSelect = screen.getByLabelText("ZIP Code");
       const streetSelect = screen.getByLabelText("Street");
       const citySelect = screen.getByLabelText("City");
+      const countrySelect = screen.getByLabelText("Country");
 
       mockHeaders.forEach((header) => {
         expect(zipSelect).toContainElement(screen.getAllByRole("option", { name: header })[0]);
         expect(streetSelect).toContainElement(screen.getAllByRole("option", { name: header })[1]);
         expect(citySelect).toContainElement(screen.getAllByRole("option", { name: header })[2]);
+        expect(countrySelect).toContainElement(screen.getAllByRole("option", { name: header })[3]);
       });
     });
 
@@ -99,6 +102,23 @@ describe("ColumnSelector Component", () => {
         zipCode: "zipCode",
         street: undefined,
         city: undefined,
+        country: undefined,
+        metadataColumns: [],
+      });
+    });
+
+    it("should call onMappingChange when country column is selected", async () => {
+      const user = userEvent.setup();
+      render(<ColumnSelector headers={mockHeaders} onMappingChange={mockOnMappingChange} />);
+
+      const countrySelect = screen.getByLabelText("Country");
+      await user.selectOptions(countrySelect, "country");
+
+      expect(mockOnMappingChange).toHaveBeenCalledWith({
+        zipCode: undefined,
+        street: undefined,
+        city: undefined,
+        country: "country",
         metadataColumns: [],
       });
     });
@@ -108,6 +128,7 @@ describe("ColumnSelector Component", () => {
         zipCode: "zipCode",
         street: "street",
         city: "city",
+        country: "country",
         metadataColumns: ["name"],
       };
 
@@ -116,6 +137,7 @@ describe("ColumnSelector Component", () => {
       expect(screen.getByDisplayValue("zipCode")).toBeInTheDocument();
       expect(screen.getByDisplayValue("street")).toBeInTheDocument();
       expect(screen.getByDisplayValue("city")).toBeInTheDocument();
+      expect(screen.getByDisplayValue("country")).toBeInTheDocument();
     });
   });
 

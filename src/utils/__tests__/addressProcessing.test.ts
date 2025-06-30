@@ -82,6 +82,42 @@ describe("addressProcessing", () => {
         error: "Empty address",
       });
     });
+
+    it("should process address with country successfully", async () => {
+      const mockRowWithCountry: CSVRow = {
+        street: "123 Main St",
+        city: "Test City",
+        zip: "12345",
+        country: "Test Country",
+        name: "Test Location",
+      };
+
+      const mockColumnMappingWithCountry: ColumnMapping = {
+        street: "street",
+        city: "city",
+        zipCode: "zip",
+        country: "country",
+        metadataColumns: ["name"],
+      };
+
+      const mockGeocodeResult = {
+        lat: 40.7128,
+        lon: -74.006,
+        display_name: "123 Main St, Test City, 12345, Test Country",
+      };
+
+      vi.mocked(geocoding.buildAddressString).mockReturnValue("123 Main St, Test City, 12345, Test Country");
+      vi.mocked(geocoding.geocodeAddressWithRateLimit).mockResolvedValue(mockGeocodeResult);
+
+      const result = await processAddressRow(mockRowWithCountry, mockColumnMappingWithCountry);
+
+      expect(geocoding.buildAddressString).toHaveBeenCalledWith("123 Main St", "12345", "Test City", "Test Country");
+      expect(result).toEqual({
+        originalData: mockRowWithCountry,
+        geocodeResult: mockGeocodeResult,
+        coordinates: [40.7128, -74.006],
+      });
+    });
   });
 
   describe("calculateProgress", () => {

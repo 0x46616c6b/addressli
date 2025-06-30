@@ -16,14 +16,34 @@ describe("geocoding utilities", () => {
       expect(result).toBe("Musterstraße 1, 12345, Berlin");
     });
 
+    it("should build address string with country", () => {
+      const result = buildAddressString("Musterstraße 1", "12345", "Berlin", "Germany");
+      expect(result).toBe("Musterstraße 1, 12345, Berlin, Germany");
+    });
+
     it("should handle missing components", () => {
       const result = buildAddressString(undefined, "12345", "Berlin");
       expect(result).toBe("12345, Berlin");
     });
 
+    it("should handle missing components with country", () => {
+      const result = buildAddressString(undefined, "12345", "Berlin", "Germany");
+      expect(result).toBe("12345, Berlin, Germany");
+    });
+
+    it("should handle only country specified", () => {
+      const result = buildAddressString(undefined, undefined, undefined, "Germany");
+      expect(result).toBe("Germany");
+    });
+
     it("should handle empty strings", () => {
       const result = buildAddressString("", "12345", "Berlin");
       expect(result).toBe("12345, Berlin");
+    });
+
+    it("should handle empty country", () => {
+      const result = buildAddressString("Musterstraße 1", "12345", "Berlin", "");
+      expect(result).toBe("Musterstraße 1, 12345, Berlin");
     });
 
     it("should return empty string when all components are missing", () => {
@@ -34,6 +54,11 @@ describe("geocoding utilities", () => {
     it("should trim whitespace from components", () => {
       const result = buildAddressString("  Musterstraße 1  ", "  12345  ", "  Berlin  ");
       expect(result).toBe("Musterstraße 1, 12345, Berlin");
+    });
+
+    it("should trim whitespace from all components including country", () => {
+      const result = buildAddressString("  Musterstraße 1  ", "  12345  ", "  Berlin  ", "  Germany  ");
+      expect(result).toBe("Musterstraße 1, 12345, Berlin, Germany");
     });
   });
 

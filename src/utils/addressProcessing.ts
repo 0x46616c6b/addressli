@@ -8,7 +8,8 @@ export async function processAddressRow(row: CSVRow, columnMapping: ColumnMappin
   const addressString = buildAddressString(
     columnMapping.street ? row[columnMapping.street] : undefined,
     columnMapping.zipCode ? row[columnMapping.zipCode] : undefined,
-    columnMapping.city ? row[columnMapping.city] : undefined
+    columnMapping.city ? row[columnMapping.city] : undefined,
+    columnMapping.country ? row[columnMapping.country] : undefined
   );
 
   const processedAddress: ProcessedAddress = {

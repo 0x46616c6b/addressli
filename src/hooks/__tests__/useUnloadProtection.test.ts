@@ -68,13 +68,11 @@ describe("useUnloadProtection", () => {
     // Mock BeforeUnloadEvent
     const mockEvent = {
       preventDefault: vi.fn(),
-      returnValue: "",
     };
 
     const result = eventHandler(mockEvent);
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockEvent.returnValue).toContain("Data processing is still running");
     expect(result).toContain("Data processing is still running");
   });
 
@@ -88,13 +86,11 @@ describe("useUnloadProtection", () => {
     // Mock BeforeUnloadEvent
     const mockEvent = {
       preventDefault: vi.fn(),
-      returnValue: "",
     };
 
     const result = eventHandler(mockEvent);
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockEvent.returnValue).toBe(customMessage);
     expect(result).toBe(customMessage);
   });
 });

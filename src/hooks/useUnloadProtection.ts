@@ -16,9 +16,8 @@ export function useUnloadProtection(
     }
 
     const handleBeforeUnload = (event: BeforeUnloadEvent): string | undefined => {
-      // Modern browsers require returnValue to be set and a string to be returned
+      // Modern browsers only require preventDefault() and returning a string
       event.preventDefault();
-      event.returnValue = message;
       return message;
     };
 

@@ -45,7 +45,6 @@ function App(): React.JSX.Element {
   usePageProtection({
     isProcessing: state.isProcessing,
     progress: state.progress,
-    originalTitle: "addressli - CSV Geocoding Tool",
   });
 
   const setCurrentStep = useCallback((step: AppStep) => {

@@ -101,7 +101,13 @@ function App(): React.JSX.Element {
   }, []);
 
   const handleStartProcessing = useCallback(async () => {
-    const validation = validateColumnSelection(state.headers, state.columnMapping.zipCode, state.columnMapping.street, state.columnMapping.city);
+    const validation = validateColumnSelection(
+      state.headers,
+      state.columnMapping.zipCode,
+      state.columnMapping.street,
+      state.columnMapping.city,
+      state.columnMapping.country
+    );
 
     if (!validation.isValid) {
       validation.errors.forEach(addError);
@@ -195,7 +201,7 @@ function App(): React.JSX.Element {
                 <button
                   onClick={handleStartProcessing}
                   className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
-                  disabled={!state.columnMapping.zipCode && !state.columnMapping.street && !state.columnMapping.city}
+                  disabled={!state.columnMapping.zipCode && !state.columnMapping.street && !state.columnMapping.city && !state.columnMapping.country}
                 >
                   Start Geocoding
                 </button>

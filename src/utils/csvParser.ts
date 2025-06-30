@@ -63,9 +63,16 @@ export function getCSVPreview(data: CSVRow[], maxRows: number = 5): CSVRow[] {
  * @param zipCode Selected ZIP code column
  * @param street Selected street column
  * @param city Selected city column
+ * @param country Selected country column
  * @returns Object with validation results
  */
-export function validateColumnSelection(headers: string[], zipCode?: string, street?: string, city?: string): { isValid: boolean; errors: string[] } {
+export function validateColumnSelection(
+  headers: string[],
+  zipCode?: string,
+  street?: string,
+  city?: string,
+  country?: string
+): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (!headers.length) {
@@ -73,12 +80,12 @@ export function validateColumnSelection(headers: string[], zipCode?: string, str
   }
 
   // At least one address component should be selected
-  if (!zipCode && !street && !city) {
-    errors.push("At least one address component (ZIP, street, or city) must be selected");
+  if (!zipCode && !street && !city && !country) {
+    errors.push("At least one address component (ZIP, street, city, or country) must be selected");
   }
 
   // Check if selected columns exist in headers
-  const selectedColumns = [zipCode, street, city].filter(Boolean) as string[];
+  const selectedColumns = [zipCode, street, city, country].filter(Boolean) as string[];
   const invalidColumns = selectedColumns.filter((col) => !headers.includes(col));
 
   if (invalidColumns.length > 0) {
@@ -96,7 +103,7 @@ export function validateColumnSelection(headers: string[], zipCode?: string, str
  * @param headers Available column headers
  * @returns Suggested column mapping
  */
-export function autoDetectColumns(headers: string[]): { zipCode?: string; street?: string; city?: string } {
+export function autoDetectColumns(headers: string[]): { zipCode?: string; street?: string; city?: string; country?: string } {
   const normalizedHeaders = headers.map((header) => header.toLowerCase().trim());
 
   // Common patterns for ZIP code columns (German and English)
@@ -126,6 +133,9 @@ export function autoDetectColumns(headers: string[]): { zipCode?: string; street
   // Common patterns for city columns (German and English)
   const cityPatterns = ["ort", "stadt", "city", "town", "place", "gemeinde", "municipality", "ortschaft", "wohnort", "locality", "location", "standort"];
 
+  // Common patterns for country columns (German and English)
+  const countryPatterns = ["land", "country", "staat", "nation", "ländercode", "country code", "country_code", "countrycode", "iso_country", "iso country"];
+
   const findBestMatch = (patterns: string[]) => {
     // First, try to find exact matches
     for (const pattern of patterns) {
@@ -150,6 +160,7 @@ export function autoDetectColumns(headers: string[]): { zipCode?: string; street
     zipCode: findBestMatch(zipPatterns),
     street: findBestMatch(streetPatterns),
     city: findBestMatch(cityPatterns),
+    country: findBestMatch(countryPatterns),
   };
 }
 

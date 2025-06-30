@@ -1,0 +1,5 @@
+name,street,city,zipcode,country,email
+John Doe,Unter den Linden 1,Berlin,10117,Germany,john@example.com
+Jane Smith,5th Avenue 123,New York,10001,USA,jane@example.com
+Pierre Durand,Champs-Élysées 50,Paris,75008,France,pierre@example.com
+Maria Garcia,Gran Via 28,Madrid,28013,Spain,maria@example.com

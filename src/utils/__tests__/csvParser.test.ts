@@ -75,45 +75,58 @@ describe("csvParser utilities", () => {
     const headers = ["name", "street", "zipCode", "city", "email"];
 
     it("should validate when at least one address column is selected", () => {
-      const result = validateColumnSelection(headers, "zipCode", undefined, "city");
+      const result = validateColumnSelection(headers, "zipCode", undefined, "city", undefined);
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
     it("should validate when only one address column is selected", () => {
-      const result = validateColumnSelection(headers, undefined, "street", undefined);
+      const result = validateColumnSelection(headers, undefined, "street", undefined, undefined);
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
     it("should fail when no address columns are selected", () => {
-      const result = validateColumnSelection(headers, undefined, undefined, undefined);
+      const result = validateColumnSelection(headers, undefined, undefined, undefined, undefined);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("At least one address component (ZIP, street, or city) must be selected");
+      expect(result.errors).toContain("At least one address component (ZIP, street, city, or country) must be selected");
     });
 
     it("should fail when headers are empty", () => {
-      const result = validateColumnSelection([], "zipCode", "street", "city");
+      const result = validateColumnSelection([], "zipCode", "street", "city", undefined);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain("No column headers found");
     });
 
     it("should fail when selected column does not exist in headers", () => {
-      const result = validateColumnSelection(headers, "nonexistent", "street", "city");
+      const result = validateColumnSelection(headers, "nonexistent", "street", "city", undefined);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain("Invalid columns selected: nonexistent");
     });
 
     it("should fail when multiple selected columns do not exist", () => {
-      const result = validateColumnSelection(headers, "nonexistent1", "nonexistent2", "city");
+      const result = validateColumnSelection(headers, "nonexistent1", "nonexistent2", "city", undefined);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain("Invalid columns selected: nonexistent1, nonexistent2");
     });
 
     it("should validate when empty strings are passed instead of undefined", () => {
-      const result = validateColumnSelection(headers, "", "street", "");
+      const result = validateColumnSelection(headers, "", "street", "", undefined);
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
+    });
+
+    it("should validate when only country column is selected", () => {
+      const headersWithCountry = ["name", "street", "zipCode", "city", "country", "email"];
+      const result = validateColumnSelection(headersWithCountry, undefined, undefined, undefined, "country");
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it("should fail when country column does not exist", () => {
+      const result = validateColumnSelection(headers, undefined, undefined, undefined, "nonexistent");
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toContain("Invalid columns selected: nonexistent");
     });
   });
 
@@ -235,6 +248,30 @@ describe("csvParser utilities", () => {
       expect(result.zipCode).toBe("Post Code");
       expect(result.street).toBe("Address Line");
       expect(result.city).toBe("Locality");
+    });
+
+    it("should detect country columns", () => {
+      const headersWithCountry = ["Name", "ZIP", "Street", "City", "Country", "Email"];
+      const result = autoDetectColumns(headersWithCountry);
+      expect(result.zipCode).toBe("ZIP");
+      expect(result.street).toBe("Street");
+      expect(result.city).toBe("City");
+      expect(result.country).toBe("Country");
+    });
+
+    it("should detect German country column", () => {
+      const germanHeadersWithCountry = ["Name", "PLZ", "Straße", "Ort", "Land", "Email"];
+      const result = autoDetectColumns(germanHeadersWithCountry);
+      expect(result.zipCode).toBe("PLZ");
+      expect(result.street).toBe("Straße");
+      expect(result.city).toBe("Ort");
+      expect(result.country).toBe("Land");
+    });
+
+    it("should detect country code columns", () => {
+      const headersWithCountryCode = ["Name", "ZIP", "Street", "City", "Country Code", "Email"];
+      const result = autoDetectColumns(headersWithCountryCode);
+      expect(result.country).toBe("Country Code");
     });
   });
 
